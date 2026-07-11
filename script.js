@@ -32,6 +32,21 @@ const WALLPAPERS = [
   { id: "w8", title: "Pixel Rush", time: "14:55", category: "Gaming", premium: false, tag: "gift", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600" },
   { id: "w9", title: "Deep Sky", time: "01:12", category: "Space", premium: true, tag: "diamond", img: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=600" },
   { id: "w10", title: "Rain Forest", time: "07:30", category: "Nature", premium: false, tag: "fire", img: "https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=600" },
+
+  /* ---- Added: the same images used in the login-screen background grid,
+     now also available in the main Explore grid ---- */
+  { id: "w11", title: "Login Frame 01", time: "03:10", category: "Abstract", premium: false, tag: "gift", img: "https://i.ibb.co/Kz81yjgy/10a83c4fd7e6525b092666eae2a24828.jpg" },
+  { id: "w12", title: "Login Frame 02", time: "11:25", category: "Abstract", premium: false, tag: "gift", img: "https://i.ibb.co/TBgPsR0D/e41abb1adaa447b0ace2f00943fc2cf6.jpg" },
+  { id: "w13", title: "Login Frame 03", time: "15:40", category: "Abstract", premium: true, tag: "diamond", img: "https://i.ibb.co/prM7ZcbB/f5e4b804c06fb5441d2392f4d6361714.jpg" },
+  { id: "w14", title: "Login Frame 04", time: "19:55", category: "Nature", premium: false, tag: "gift", img: "https://i.ibb.co/RGVkzJxy/f5ae1610b81259691d8ac579db0ddb7c.jpg" },
+  { id: "w15", title: "Login Frame 05", time: "08:15", category: "Nature", premium: true, tag: "fire", img: "https://i.ibb.co/JR3xrx4S/653a056fd4b86d41d868843de536ed9b.jpg" },
+  { id: "w16", title: "Login Frame 06", time: "22:30", category: "Dark", premium: false, tag: "gift", img: "https://i.ibb.co/zVKnHdyL/3087a2ae0bc62298d176b86580bbc2b0.jpg" },
+  { id: "w17", title: "Login Frame 07", time: "05:45", category: "Nature", premium: false, tag: "gift", img: "https://i.ibb.co/3m8B4SJR/479f69994761abea0968e875f84bb8d3.jpg" },
+  { id: "w18", title: "Login Frame 08", time: "13:20", category: "Minimal", premium: true, tag: "diamond", img: "https://i.ibb.co/zWf2Nghf/c8a59f5672cb86f4b04da4adabb30111.jpg" },
+  { id: "w19", title: "Login Frame 09", time: "20:05", category: "Dark", premium: false, tag: "fire", img: "https://i.ibb.co/z9j0y40/aa587ae4dd0e290dc436fd3e30e2fa5a.jpg" },
+  { id: "w20", title: "Login Frame 10", time: "16:50", category: "Nature", premium: false, tag: "gift", img: "https://i.ibb.co/TBSJPY1y/06e8afef8d9a920f428e997edca9e41f.jpg" },
+  { id: "w21", title: "Login Frame 11", time: "10:35", category: "Abstract", premium: true, tag: "diamond", img: "https://i.ibb.co/kskPzj5r/c9130ea644806251ce4b1413af0865c9.jpg" },
+  { id: "w22", title: "Login Frame 12", time: "04:00", category: "Nature", premium: false, tag: "gift", img: "https://i.ibb.co/yBpwd5CJ/1db3adb82e25ecf99a201f21d6e6f324.jpg" },
 ];
 
 const SAMPLES = WALLPAPERS.slice(0, 4);
@@ -40,7 +55,7 @@ const SAMPLES = WALLPAPERS.slice(0, 4);
    Init
    ========================================================= */
 document.addEventListener("DOMContentLoaded", () => {
-  initGoogleSignIn();
+  waitForGoogleThenInit();
   renderWallpapers();
   renderSamples();
   wireSearch();
@@ -241,6 +256,35 @@ function showToast(message) {
 /* =========================================================
    Google Sign-In
    ========================================================= */
+
+// The GIS script tag uses async/defer, so at DOMContentLoaded time the
+// `google` global may not exist yet. Poll briefly instead of calling
+// initGoogleSignIn() immediately — this was the reason the button
+// sometimes failed to render even when the origin was configured
+// correctly.
+function waitForGoogleThenInit() {
+  const statusEl = document.getElementById("signin-status");
+  const fallbackBtn = document.getElementById("google-fallback-btn");
+  let attempts = 0;
+
+  const poll = setInterval(() => {
+    attempts++;
+
+    if (typeof google !== "undefined" && google.accounts && google.accounts.id) {
+      clearInterval(poll);
+      initGoogleSignIn();
+      return;
+    }
+
+    if (attempts > 25) { // ~5 seconds
+      clearInterval(poll);
+      logDebug("Google Identity Services script did not load in time.");
+      if (statusEl) statusEl.textContent = "Couldn't load Google Sign-In";
+      if (fallbackBtn) fallbackBtn.style.display = "flex";
+    }
+  }, 200);
+}
+
 function initGoogleSignIn() {
   const statusEl = document.getElementById("signin-status");
   const fallbackBtn = document.getElementById("google-fallback-btn");
@@ -290,8 +334,12 @@ function handleCredentialResponse(response) {
 function handleFallbackGoogleClick() {
   // Used only if the real Google button fails to render
   // (e.g. this origin isn't added to Authorized JavaScript origins yet).
-  logDebug("Fallback button clicked — check Authorized JavaScript origins in Google Cloud Console.");
-  showToast("Sign-in isn't configured yet");
+  if (typeof google !== "undefined" && google.accounts && google.accounts.id) {
+    google.accounts.id.prompt();
+  } else {
+    logDebug("Fallback button clicked — check Authorized JavaScript origins in Google Cloud Console.");
+    showToast("Sign-in isn't configured yet");
+  }
 }
 
 function decodeJwt(token) {
@@ -406,4 +454,4 @@ function openRazorpay({ amount, name, description, onSuccess }) {
     showToast("Payment failed, please try again");
   });
   rzp.open();
-}
+   }
