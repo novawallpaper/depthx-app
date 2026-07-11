@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Premium Wallpaper</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+
+    <!-- Google Identity Services (Sign in with Google) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div class="app-container">
+      <!-- ========================= -->
+      <!-- LOGIN GATE (shown first, hides after Google Sign-In) -->
+      <!-- ========================= -->
+
+      <div id="login-gate" class="login-gate">
+        <div class="login-bg-grid">
+          <img src="https://picsum.photos/seed/wallpaper1/300/400" alt="" />
+          <img src="https://picsum.photos/seed/wallpaper2/300/400" alt="" />
+          <img src="https://picsum.photos/seed/wallpaper3/300/400" alt="" />
+          <img src="https://picsum.photos/seed/wallpaper4/300/400" alt="" />
+          <img src="https://picsum.photos/seed/wallpaper5/300/400" alt="" />
+          <img src="https://picsum.photos/seed/wallpaper6/300/400" alt="" />
+          <img src="https://picsum.photos/seed/wallpaper7/300/400" alt="" />
+          <img src="https://picsum.photos/seed/wallpaper8/300/400" alt="" />
+          <img src="https://picsum.photos/seed/wallpaper9/300/400" alt="" />
+          <img src="https://picsum.photos/seed/wallpaper10/300/400" alt="" />
+          <img src="https://picsum.photos/seed/wallpaper11/300/400" alt="" />
+          <img src="https://picsum.photos/seed/wallpaper12/300/400" alt="" />
+        </div>
+
+        <div class="login-gate-fade"></div>
+
+        <div class="login-content">
+          <div class="login-app-icon">02:30</div>
+
+          <h1 class="login-app-name">DepthX</h1>
+
+          <p class="login-tagline">
+            Enjoy stunning depth &amp; parallax effect wallpapers...
+          </p>
+
+          <p class="login-by">By AppsLab Co.</p>
+
+          <!-- Google renders its real sign-in button inside this slot -->
+          <div id="google-signin-btn-gate" class="login-google-slot"></div>
+
+          <!-- Fallback button — shown only if Google's real button fails to
+             render (e.g. domain not yet added to Authorized JavaScript
+             origins, or the GIS script got blocked) -->
+          <button
+            id="google-fallback-btn"
+            class="login-google-fallback"
+            style="display: none"
+            onclick="handleFallbackGoogleClick()"
+          >
+            <i class="fa-brands fa-google"></i>
+            Sign in with Google
+          </button>
+
+          <p id="signin-status" class="signin-status">
+            Loading Google Sign-In…
+          </p>
+
+          <p class="login-terms">
+            By continuing, you agree to our
+            <a href="#">Terms of Service</a>
+            and
+            <a href="#">Privacy Policy</a>
+          </p>
+
+          <!-- Visible debug output — shows any Google Sign-In errors directly
+             on screen so they can be read/screenshotted without DevTools.
+             Safe to delete once sign-in is working. -->
+          <div id="debug-log" class="debug-log"></div>
+        </div>
+      </div>
+
+      <!-- ========================= -->
+      <!-- CATEGORIES SCREEN -->
+      <!-- ========================= -->
+
+      <div id="screen-categories" class="screen-content">
+        <div class="page-header">
+          <h1>Collection</h1>
+        </div>
+
+        <p class="category-subtitle"></p>
+
+        <div class="carousel-container">
+          <div
+            class="carousel-card"
+            style="
+              background-image: url(&quot;https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=900&quot;);
+            "
+          >
+            <div class="carousel-info">
+              <h2>Aero Space</h2>
+
+              <button class="explore-pill-btn" onclick="openCategory('Space')">
+                Explore
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="carousel-card"
+            style="
+              background-image: url(&quot;https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=900&quot;);
+            "
+          >
+            <div class="carousel-info">
+              <h2>Cyber</h2>
+
+              <button class="explore-pill-btn" onclick="openCategory('Cyber')">
+                Explore
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="carousel-card"
+            style="
+              background-image: url(&quot;https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=900&quot;);
+            "
+          >
+            <div class="carousel-info">
+              <h2>Nature</h2>
+
+              <button class="explore-pill-btn" onclick="openCategory('Nature')">
+                Explore
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="carousel-card"
+            style="
+              background-image: url(&quot;https://images.unsplash.com/photo-1511512578047-dfb367046420?w=900&quot;);
+            "
+          >
+            <div class="carousel-info">
+              <h2>Gaming</h2>
+
+              <button class="explore-pill-btn" onclick="openCategory('Gaming')">
+                Explore
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================= -->
+      <!-- EXPLORE SCREEN -->
+      <!-- ========================= -->
+
+      <div id="screen-explore" class="screen-content active">
+        <div class="explore-header">
+          <h1 id="explore-title">All Wallpapers</h1>
+
+          <div class="search-box">
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Search Wallpapers..."
+            />
+
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+        </div>
+
+        <div class="sub-categories-bar">
+          <div
+            class="sub-cat-item active"
+            data-filter="grid"
+            onclick="switchSubCat(this)"
+          >
+            <i class="fa-solid fa-border-all"></i>
+
+            <span class="sub-cat-text"> Grid </span>
+          </div>
+
+          <div
+            class="sub-cat-item"
+            data-filter="gift"
+            onclick="switchSubCat(this)"
+          >
+            <i class="fa-solid fa-gift"></i>
+
+            <span class="sub-cat-text"> Free </span>
+          </div>
+
+          <div
+            class="sub-cat-item"
+            data-filter="diamond"
+            onclick="switchSubCat(this)"
+          >
+            <i class="fa-solid fa-gem"></i>
+
+            <span class="sub-cat-text"> Premium </span>
+          </div>
+          <div
+            class="sub-cat-item"
+            data-filter="shuffle"
+            onclick="switchSubCat(this)"
+          >
+            <i class="fa-solid fa-shuffle"></i>
+
+            <span class="sub-cat-text"> Shuffle </span>
+          </div>
+
+          <div
+            class="sub-cat-item"
+            data-filter="star"
+            onclick="switchSubCat(this)"
+          >
+            <i class="fa-solid fa-star"></i>
+
+            <span class="sub-cat-text"> Favorites </span>
+          </div>
+
+          <div
+            class="sub-cat-item"
+            data-filter="fire"
+            onclick="switchSubCat(this)"
+          >
+            <i class="fa-solid fa-fire"></i>
+
+            <span class="sub-cat-text"> Trending </span>
+          </div>
+        </div>
+
+        <div class="wallpaper-grid" id="wallpaper-grid-container"></div>
+
+        <div class="fab-heart" onclick="filterByFavoritesQuick()">
+          <i class="fa-solid fa-heart"></i>
+        </div>
+      </div>
+
+      <!-- ========================= -->
+      <!-- REQUEST SCREEN -->
+      <!-- ========================= -->
+
+      <div id="screen-request" class="screen-content">
+        <div class="page-header">
+          <h1>Custom Wallpaper</h1>
+        </div>
+
+        <div class="custom-card">
+          <div class="custom-card-header">
+            <h3>Order Your Custom</h3>
+
+            <div class="sparkle-icon">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+          </div>
+
+          <h2>Depth Wallpaper</h2>
+
+          <p>
+            Upload your own image and receive a premium AI generated depth
+            wallpaper in ultra HD quality.
+          </p>
+
+          <div class="privacy-info">
+            <i class="fa-solid fa-lock"></i>
+
+            <span> Private • Visible only to you </span>
+          </div>
+
+          <div class="pricing-row">
+            <div class="price-tag">
+              ₹35
+
+              <span style="font-size: 12px; font-weight: 400; opacity: 0.8">
+                / Wallpaper
+              </span>
+            </div>
+
+            <button class="order-btn" onclick="startCustomOrderPayment()">
+              Order Now
+            </button>
+          </div>
+        </div>
+
+        <div class="section-title">Sample Wallpapers</div>
+
+        <div id="samples-grid" class="wallpaper-grid"></div>
+      </div>
+      <!-- ========================= -->
+      <!-- SETTINGS SCREEN -->
+      <!-- ========================= -->
+
+      <div id="screen-settings" class="screen-content">
+        <div class="page-header">
+          <h1>Settings</h1>
+        </div>
+
+        <div class="profile-card" id="profile-signed-in">
+          <div class="profile-left">
+            <div class="avatar" id="profile-avatar">A</div>
+
+            <div>
+              <div class="profile-name" id="profile-name-text">
+                Abdul Rahman
+              </div>
+
+              <div class="profile-email" id="profile-email-text">
+                shopify09@gmail.com
+              </div>
+
+              <div class="verified-badge">
+                <i class="fa-solid fa-circle-check"></i>
+
+                Verified
+              </div>
+            </div>
+          </div>
+
+          <i
+            class="fa-solid fa-right-from-bracket logout-btn"
+            onclick="signOutGoogle()"
+          >
+          </i>
+        </div>
+
+        <div class="tier-card">
+          <div class="tier-left">
+            <h2>FREE PLAN</h2>
+
+            <p>Upgrade for Premium Wallpapers</p>
+          </div>
+
+          <button class="upgrade-btn" onclick="startPremiumUpgrade()">
+            Upgrade
+          </button>
+        </div>
+
+        <div class="features-scroll">
+          <div class="feature-item">
+            <div class="feature-icon-wrapper">
+              <i class="fa-solid fa-gem"></i>
+
+              <div class="lock-icon">
+                <i class="fa-solid fa-lock"></i>
+              </div>
+            </div>
+
+            <p>Premium</p>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon-wrapper">
+              <i class="fa-solid fa-palette"></i>
+
+              <div class="lock-icon">
+                <i class="fa-solid fa-lock"></i>
+              </div>
+            </div>
+
+            <p>AI Edit</p>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon-wrapper">
+              <i class="fa-solid fa-folder-open"></i>
+
+              <div class="lock-icon">
+                <i class="fa-solid fa-lock"></i>
+              </div>
+            </div>
+
+            <p>Collections</p>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon-wrapper">
+              <i class="fa-solid fa-gauge-high"></i>
+
+              <div class="lock-icon">
+                <i class="fa-solid fa-lock"></i>
+              </div>
+            </div>
+
+            <p>Unlimited</p>
+          </div>
+        </div>
+
+        <div class="no-ads-card">
+          <div class="no-ads-icon">
+            <i class="fa-solid fa-ban"></i>
+          </div>
+
+          <div class="no-ads-info">
+            <h4>No Ads</h4>
+
+            <p>Enjoy an ad-free premium experience.</p>
+          </div>
+        </div>
+
+        <div class="limits-card">
+          <div class="section-title">Usage</div>
+
+          <div class="limit-row">
+            <div class="limit-label">
+              <span> Daily </span>
+
+              <span> 35 / 100 </span>
+            </div>
+
+            <div class="limit-bar">
+              <div class="limit-progress" style="width: 35%"></div>
+            </div>
+          </div>
+          <div class="limit-row">
+            <div class="limit-label">
+              <span> Hourly </span>
+
+              <span> 12 / 30 </span>
+            </div>
+
+            <div class="limit-bar">
+              <div class="limit-progress" style="width: 40%"></div>
+            </div>
+          </div>
+
+          <button class="refresh-btn" onclick="location.reload()">
+            Refresh Dashboard
+          </button>
+        </div>
+      </div>
+
+      <!-- ========================= -->
+      <!-- Bottom Navigation -->
+      <!-- ========================= -->
+
+      <nav class="bottom-nav">
+        <div
+          class="nav-item"
+          id="nav-categories"
+          onclick="switchTab('categories', this)"
+        >
+          <div class="nav-icon-wrapper">
+            <i class="fa-solid fa-layer-group"></i>
+          </div>
+
+          <span> Categories </span>
+        </div>
+
+        <div
+          class="nav-item active"
+          id="nav-explore"
+          onclick="switchTab('explore', this)"
+        >
+          <div class="nav-icon-wrapper">
+            <i class="fa-solid fa-compass"></i>
+          </div>
+
+          <span> Explore </span>
+        </div>
+
+        <div
+          class="nav-item"
+          id="nav-request"
+          onclick="switchTab('request', this)"
+        >
+          <div class="nav-icon-wrapper">
+            <i class="fa-solid fa-circle-plus"></i>
+          </div>
+
+          <span> Request </span>
+        </div>
+
+        <div
+          class="nav-item"
+          id="nav-settings"
+          onclick="switchTab('settings', this)"
+        >
+          <div class="nav-icon-wrapper">
+            <i class="fa-solid fa-gear"></i>
+          </div>
+
+          <span> Settings </span>
+        </div>
+      </nav>
+
+      <!-- Wallpaper Preview Modal -->
+
+      <div id="wallpaper-modal" class="wallpaper-modal">
+        <div id="modal-preview-bg" class="modal-preview-bg"></div>
+
+        <h2 id="modal-wallpaper-title"></h2>
+
+        <button id="modal-download-action">Download</button>
+
+        <button id="modal-set-action">Set Wallpaper</button>
+      </div>
+
+      <!-- Toast -->
+
+      <div id="app-toast" class="toast"></div>
+    </div>
+
+    <!-- Razorpay Checkout SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <script src="script.js"></script>
+  </body>
+</html>
