@@ -1,3 +1,6 @@
+2
+
+
 :root {
   --bg-color: #f7f9fc;
   --primary-color: #1a6cf0;
@@ -860,4 +863,4 @@ body {
 }
 .debug-log div {
   margin-bottom: 4px;
-}
+  }
