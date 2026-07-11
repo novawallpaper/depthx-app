@@ -2,6 +2,12 @@
    DepthX — app logic
    NOTE: replace GOOGLE_CLIENT_ID and RAZORPAY_KEY_ID with your
    own keys before going live (see comments below).
+
+   IMPORTANT: This file does NOT require any changes to
+   index.html or style.css. Everything new (the premium
+   unlock sheet, the simulated ad overlay, and the bottom-nav
+   stability fix) is created/injected at runtime from this
+   file alone, using your original HTML/CSS as-is.
    ========================================================= */
 
 const GOOGLE_CLIENT_ID = "452456583028-1l86bibq60ggkl3o1h5j88sed7v04eof.apps.googleusercontent.com";
@@ -143,6 +149,9 @@ const SAMPLES = WALLPAPERS.slice(0,4);
    Init
    ========================================================= */
 document.addEventListener("DOMContentLoaded", () => {
+  injectExtraStyles();
+  injectUnlockUi();
+
   initGoogleSignIn();
   renderWallpapers();
   renderSamples();
@@ -322,6 +331,9 @@ function wireModalClose() {
 
 /* =========================================================
    Premium gating: ad-unlock (one free use per account) or subscription
+   All markup + styles for this feature are injected below in
+   injectUnlockUi() / injectExtraStyles() — index.html and
+   style.css are never touched.
    ========================================================= */
 
 /* Entry point used by the Download button. Decides whether the
@@ -435,6 +447,180 @@ function onAdWatched() {
 }
 
 /* =========================================================
+   Runtime UI injection (keeps index.html / style.css untouched)
+   ========================================================= */
+function injectUnlockUi() {
+  const container = document.querySelector(".app-container");
+  if (!container) return;
+
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = `
+    <div id="unlock-modal" class="unlock-modal">
+      <div class="unlock-sheet">
+        <div class="unlock-icon">
+          <i class="fa-solid fa-gem"></i>
+        </div>
+        <h3>Premium Wallpaper</h3>
+        <p>
+          This wallpaper is Premium. Watch a short ad to unlock it once,
+          or subscribe for unlimited premium downloads.
+        </p>
+        <div class="unlock-options">
+          <button id="unlock-btn-ad" class="unlock-btn unlock-btn-ad" onclick="watchAdToUnlock()">
+            <i class="fa-solid fa-play"></i>
+            Watch Ad to Unlock
+          </button>
+          <button class="unlock-btn unlock-btn-sub" onclick="closeUnlockModal(); startPremiumUpgrade();">
+            <i class="fa-solid fa-crown"></i>
+            Subscribe for Unlimited
+          </button>
+        </div>
+        <button class="unlock-cancel" onclick="closeUnlockModal()">Cancel</button>
+      </div>
+    </div>
+    <div id="ad-overlay" class="ad-overlay">
+      <div class="ad-label">Advertisement</div>
+      <div class="ad-timer" id="ad-timer">5</div>
+      <div class="ad-note">Unlocking your wallpaper…</div>
+    </div>
+  `;
+
+  // Move the generated nodes into app-container (append at the end so
+  // they layer above everything else, matching their z-index).
+  while (wrapper.firstChild) {
+    container.appendChild(wrapper.firstChild);
+  }
+}
+
+function injectExtraStyles() {
+  const style = document.createElement("style");
+  style.id = "depthx-injected-styles";
+  style.textContent = `
+    /* --- Bottom nav stability fix (prevents it from flickering/
+       disappearing on iOS/Safari during scroll) --- */
+    .bottom-nav {
+      -webkit-backdrop-filter: blur(15px);
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+      will-change: transform;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .screen-content {
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* --- Premium unlock sheet --- */
+    .unlock-modal {
+      position: absolute;
+      inset: 0;
+      z-index: 400;
+      background: rgba(5, 5, 5, 0.72);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .unlock-modal.active { display: flex; }
+    .unlock-sheet {
+      width: 100%;
+      max-width: 430px;
+      background: #fff;
+      border-radius: 26px 26px 0 0;
+      padding: 26px 24px 32px 24px;
+      text-align: center;
+    }
+    .unlock-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--primary-light);
+      color: var(--primary-color);
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px auto;
+    }
+    .unlock-sheet h3 {
+      font-size: 18px;
+      color: var(--text-dark);
+      margin-bottom: 6px;
+    }
+    .unlock-sheet p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    .unlock-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .unlock-btn {
+      border: none;
+      border-radius: 14px;
+      padding: 14px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .unlock-btn-ad {
+      background: var(--primary-light);
+      color: var(--primary-color);
+    }
+    .unlock-btn-ad:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .unlock-btn-sub {
+      background: var(--primary-color);
+      color: #fff;
+    }
+    .unlock-cancel {
+      margin-top: 14px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* --- Simulated ad overlay --- */
+    .ad-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 450;
+      background: #000;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+    .ad-overlay.active { display: flex; }
+    .ad-overlay .ad-label {
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 10px;
+    }
+    .ad-overlay .ad-timer {
+      font-size: 42px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .ad-overlay .ad-note {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+/* =========================================================
    Toast
    ========================================================= */
 let toastTimer = null;
@@ -523,188 +709,4 @@ function signInUser(user) {
   document.getElementById("profile-name-text").textContent = user.name;
   document.getElementById("profile-email-text").textContent = user.email;
 
-  const avatar = document.getElementById("profile-avatar");
-  if (user.picture) {
-    avatar.innerHTML = `<img src="${user.picture}" style="width:100%;height:100%;object-fit:cover;" />`;
-  } else {
-    avatar.textContent = user.name?.[0]?.toUpperCase() || "U";
-  }
-
-  loadEntitlements();
-  updateUpgradeUi();
-
-  showToast(`Welcome, ${user.name.split(" ")[0]}!`);
-}
-
-function signOutGoogle() {
-  state.isSignedIn = false;
-  state.user = null;
-  state.isSubscribed = false;
-  state.adUsed = false;
-  state.adUnlockedWallpaperId = null;
-
-  if (typeof google !== "undefined" && google.accounts) {
-    google.accounts.id.disableAutoSelect();
-  }
-
-  document.getElementById("profile-name-text").textContent = "Not signed in";
-  document.getElementById("profile-email-text").textContent = "";
-  document.getElementById("profile-avatar").innerHTML = "U";
-
-  updateUpgradeUi();
-
-  document.getElementById("login-gate").classList.remove("hidden");
-  showToast("Signed out");
-}
-
-function logDebug(msg) {
-  const el = document.getElementById("debug-log");
-  el.classList.add("show");
-  const line = document.createElement("div");
-  line.textContent = msg;
-  el.appendChild(line);
-}
-
-/* =========================================================
-   Entitlements (subscription + one-time free ad unlock),
-   remembered per signed-in Google account.
-   ========================================================= */
-function entitlementsKey() {
-  if (!state.user?.email) return null;
-  return ENTITLEMENTS_PREFIX + state.user.email.toLowerCase();
-}
-
-function loadEntitlements() {
-  state.isSubscribed = false;
-  state.adUsed = false;
-  state.adUnlockedWallpaperId = null;
-
-  const key = entitlementsKey();
-  if (!key) return;
-
-  try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return;
-    const data = JSON.parse(raw);
-    state.isSubscribed = !!data.isSubscribed;
-    state.adUsed = !!data.adUsed;
-    state.adUnlockedWallpaperId = data.adUnlockedWallpaperId || null;
-  } catch (err) {
-    // ignore corrupt/missing storage
-  }
-}
-
-function saveEntitlements() {
-  const key = entitlementsKey();
-  if (!key) return;
-
-  try {
-    localStorage.setItem(
-      key,
-      JSON.stringify({
-        isSubscribed: state.isSubscribed,
-        adUsed: state.adUsed,
-        adUnlockedWallpaperId: state.adUnlockedWallpaperId,
-      })
-    );
-  } catch (err) {
-    // ignore storage failures (e.g. private browsing)
-  }
-}
-
-function updateUpgradeUi() {
-  const tierTitle = document.querySelector(".tier-left h2");
-  const tierSub = document.querySelector(".tier-left p");
-  const upgradeBtn = document.querySelector(".upgrade-btn");
-  if (!tierTitle || !tierSub || !upgradeBtn) return;
-
-  if (state.isSubscribed) {
-    tierTitle.textContent = "PREMIUM PLAN";
-    tierSub.textContent = "You have unlimited premium wallpapers";
-    upgradeBtn.textContent = "Active";
-    upgradeBtn.disabled = true;
-  } else {
-    tierTitle.textContent = "FREE PLAN";
-    tierSub.textContent = "Upgrade for Premium Wallpapers";
-    upgradeBtn.textContent = "Upgrade";
-    upgradeBtn.disabled = false;
-  }
-}
-
-/* =========================================================
-   Payments (Razorpay)
-   NOTE: These call Razorpay Checkout directly from the client.
-   In production, create the order on your backend first
-   (to avoid trusting the amount from the client), then pass
-   the order_id here.
-   ========================================================= */
-function startCustomOrderPayment() {
-  openRazorpay({
-    amount: 3500, // ₹35.00 in paise
-    name: "DepthX — Custom Wallpaper",
-    description: "AI generated depth wallpaper",
-    onSuccess: () => showToast("Order placed! We'll notify you when it's ready."),
-  });
-}
-
-function startPremiumUpgrade() {
-  if (!state.isSignedIn) {
-    showToast("Sign in first to subscribe");
-    return;
-  }
-
-  openRazorpay({
-    amount: 14900, // e.g. ₹149.00 in paise — adjust to your real price
-    name: "DepthX — Premium",
-    description: "Unlock premium wallpapers, AI edit & collections",
-    onSuccess: () => {
-      state.isSubscribed = true;
-      saveEntitlements();
-      updateUpgradeUi();
-      showToast("You're now Premium! 🎉");
-
-      // If they were trying to download a specific premium wallpaper,
-      // finish that download now that they're subscribed.
-      if (state.pendingUnlockWallpaper) {
-        const wp = state.pendingUnlockWallpaper;
-        state.pendingUnlockWallpaper = null;
-        performDownload(wp);
-      }
-    },
-  });
-}
-
-function openRazorpay({ amount, name, description, onSuccess }) {
-  if (typeof Razorpay === "undefined") {
-    showToast("Payments unavailable right now");
-    return;
-  }
-
-  const options = {
-    key: RAZORPAY_KEY_ID,
-    amount,
-    currency: "INR",
-    name,
-    description,
-    prefill: {
-      name: state.user?.name || "",
-      email: state.user?.email || "",
-    },
-    theme: { color: "#1a6cf0" },
-    handler: function () {
-      onSuccess?.();
-    },
-    modal: {
-      ondismiss: function () {
-        showToast("Payment cancelled");
-      },
-    },
-  };
-
-  const rzp = new Razorpay(options);
-  rzp.on("payment.failed", function () {
-    showToast("Payment failed, please try again");
-  });
-  rzp.open();
-  }
-       
+  const avatar = document.getElement
