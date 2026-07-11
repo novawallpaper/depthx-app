@@ -22,7 +22,7 @@ const state = {
 
 /* ---------------- Sample wallpaper data ---------------- */
 const WALLPAPERS = [
-  { id: "w1", title: "Nebula Drift", time: "02:30", category: "Space", premium: true, tag: "fire", img: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=600" },
+  { id: "w1", title: "Nebula Drift", time: "02:30", category: "Space", premium: true, tag: "fire", img: "https://i.ibb.co/TBgPsR0D/e41abb1adaa447b0ace2f00943fc2cf6.jpg" },
   { id: "w2", title: "Orbit Line", time: "09:15", category: "Space", premium: false, tag: "gift", img: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=600" },
   { id: "w3", title: "Neon Grid", time: "23:47", category: "Cyber", premium: true, tag: "fire", img: "https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=600" },
   { id: "w4", title: "Circuit City", time: "18:05", category: "Cyber", premium: false, tag: "gift", img: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600" },
