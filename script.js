@@ -454,4 +454,4 @@ function openRazorpay({ amount, name, description, onSuccess }) {
     showToast("Payment failed, please try again");
   });
   rzp.open();
-   }
+}
