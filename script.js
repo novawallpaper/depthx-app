@@ -13,7 +13,7 @@ const GOOGLE_CLIENT_ID =
 
 // Render Backend URL
 const API_BASE =
-"https://novawallpaper-api.onrender.com";
+"https://novawallpaper.github.io";
 
 // Razorpay Public Key
 const RAZORPAY_KEY_ID =
