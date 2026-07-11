@@ -7,8 +7,15 @@
 const GOOGLE_CLIENT_ID = "452456583028-1l86bibq60ggkl3o1h5j88sed7v04eof.apps.googleusercontent.com";
 const RAZORPAY_KEY_ID = "rzp_test_TCD8788xLE6UZd";
 
-/* ---------------- In-memory state (no localStorage —
-   this keeps the app safe to preview as a live artifact) --------------- */
+/* How long the simulated rewarded-ad plays for, in seconds */
+const AD_DURATION_SECONDS = 5;
+
+/* localStorage key prefix used to remember, per signed-in user (by email),
+   whether they are subscribed and whether they've already used their
+   one free "watch an ad to unlock" pass. */
+const ENTITLEMENTS_PREFIX = "depthx_entitlements_";
+
+/* ---------------- In-memory state --------------- */
 const state = {
   activeTab: "explore",
   activeCategory: "All",
@@ -18,6 +25,16 @@ const state = {
   isSignedIn: false,
   user: null,
   currentWallpaper: null,
+
+  /* Premium entitlement state for the current signed-in user */
+  isSubscribed: false,
+  adUsed: false,
+  adUnlockedWallpaperId: null,
+
+  /* The wallpaper the unlock sheet / ad is currently working on unlocking,
+     so we know what to download once the ad finishes or the purchase
+     succeeds. */
+  pendingUnlockWallpaper: null,
 };
 
 /* ---------------- Sample wallpaper data ---------------- */
@@ -131,6 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderSamples();
   wireSearch();
   wireModalClose();
+  wireUnlockModalClose();
 });
 
 /* =========================================================
@@ -293,23 +311,127 @@ function wireModalClose() {
   });
 
   document.getElementById("modal-download-action").addEventListener("click", () => {
-    if (!state.currentWallpaper) return;
-    if (state.currentWallpaper.premium && !state.isSignedIn) {
-      showToast("Sign in to download premium wallpapers");
-      return;
-    }
-    const a = document.createElement("a");
-    a.href = state.currentWallpaper.img;
-    a.download = `${state.currentWallpaper.title}.jpg`;
-    a.target = "_blank";
-    a.click();
-    showToast("Download started");
+    requestDownload(state.currentWallpaper);
   });
 
   document.getElementById("modal-set-action").addEventListener("click", () => {
     showToast(`"${state.currentWallpaper?.title}" set as wallpaper`);
     closeWallpaperModal();
   });
+}
+
+/* =========================================================
+   Premium gating: ad-unlock (one free use per account) or subscription
+   ========================================================= */
+
+/* Entry point used by the Download button. Decides whether the
+   wallpaper can be downloaded right away, or whether the user needs to
+   watch an ad / subscribe first. */
+function requestDownload(wp) {
+  if (!wp) return;
+
+  if (!wp.premium) {
+    performDownload(wp);
+    return;
+  }
+
+  if (!state.isSignedIn) {
+    showToast("Sign in to download premium wallpapers");
+    return;
+  }
+
+  if (state.isSubscribed) {
+    performDownload(wp);
+    return;
+  }
+
+  if (state.adUnlockedWallpaperId === wp.id) {
+    // Already unlocked this exact wallpaper with their one free ad
+    performDownload(wp);
+    return;
+  }
+
+  openUnlockModal(wp);
+}
+
+function performDownload(wp) {
+  const a = document.createElement("a");
+  a.href = wp.img;
+  a.download = `${wp.title}.jpg`;
+  a.target = "_blank";
+  a.click();
+  showToast("Download started");
+  closeWallpaperModal();
+}
+
+function openUnlockModal(wp) {
+  state.pendingUnlockWallpaper = wp;
+
+  const adBtn = document.getElementById("unlock-btn-ad");
+  const alreadyUsedAd = state.adUsed && state.adUnlockedWallpaperId !== wp.id;
+
+  if (alreadyUsedAd) {
+    adBtn.disabled = true;
+    adBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> Free Ad Unlock Already Used`;
+  } else {
+    adBtn.disabled = false;
+    adBtn.innerHTML = `<i class="fa-solid fa-play"></i> Watch Ad to Unlock`;
+  }
+
+  document.getElementById("unlock-modal").classList.add("active");
+}
+
+function closeUnlockModal() {
+  document.getElementById("unlock-modal").classList.remove("active");
+}
+
+function wireUnlockModalClose() {
+  const modal = document.getElementById("unlock-modal");
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) closeUnlockModal();
+  });
+}
+
+function watchAdToUnlock() {
+  if (state.adUsed && state.adUnlockedWallpaperId !== state.pendingUnlockWallpaper?.id) {
+    showToast("Your one free ad-unlock has already been used");
+    return;
+  }
+
+  closeUnlockModal();
+
+  const overlay = document.getElementById("ad-overlay");
+  const timerEl = document.getElementById("ad-timer");
+  let secondsLeft = AD_DURATION_SECONDS;
+
+  timerEl.textContent = secondsLeft;
+  overlay.classList.add("active");
+
+  const interval = setInterval(() => {
+    secondsLeft -= 1;
+
+    if (secondsLeft <= 0) {
+      clearInterval(interval);
+      overlay.classList.remove("active");
+      onAdWatched();
+    } else {
+      timerEl.textContent = secondsLeft;
+    }
+  }, 1000);
+}
+
+function onAdWatched() {
+  const wp = state.pendingUnlockWallpaper;
+  if (!wp) return;
+
+  state.adUsed = true;
+  state.adUnlockedWallpaperId = wp.id;
+  saveEntitlements();
+
+  showToast("Unlocked! Starting download…");
+  performDownload(wp);
+
+  state.pendingUnlockWallpaper = null;
 }
 
 /* =========================================================
@@ -408,12 +530,18 @@ function signInUser(user) {
     avatar.textContent = user.name?.[0]?.toUpperCase() || "U";
   }
 
+  loadEntitlements();
+  updateUpgradeUi();
+
   showToast(`Welcome, ${user.name.split(" ")[0]}!`);
 }
 
 function signOutGoogle() {
   state.isSignedIn = false;
   state.user = null;
+  state.isSubscribed = false;
+  state.adUsed = false;
+  state.adUnlockedWallpaperId = null;
 
   if (typeof google !== "undefined" && google.accounts) {
     google.accounts.id.disableAutoSelect();
@@ -422,6 +550,8 @@ function signOutGoogle() {
   document.getElementById("profile-name-text").textContent = "Not signed in";
   document.getElementById("profile-email-text").textContent = "";
   document.getElementById("profile-avatar").innerHTML = "U";
+
+  updateUpgradeUi();
 
   document.getElementById("login-gate").classList.remove("hidden");
   showToast("Signed out");
@@ -433,6 +563,72 @@ function logDebug(msg) {
   const line = document.createElement("div");
   line.textContent = msg;
   el.appendChild(line);
+}
+
+/* =========================================================
+   Entitlements (subscription + one-time free ad unlock),
+   remembered per signed-in Google account.
+   ========================================================= */
+function entitlementsKey() {
+  if (!state.user?.email) return null;
+  return ENTITLEMENTS_PREFIX + state.user.email.toLowerCase();
+}
+
+function loadEntitlements() {
+  state.isSubscribed = false;
+  state.adUsed = false;
+  state.adUnlockedWallpaperId = null;
+
+  const key = entitlementsKey();
+  if (!key) return;
+
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    state.isSubscribed = !!data.isSubscribed;
+    state.adUsed = !!data.adUsed;
+    state.adUnlockedWallpaperId = data.adUnlockedWallpaperId || null;
+  } catch (err) {
+    // ignore corrupt/missing storage
+  }
+}
+
+function saveEntitlements() {
+  const key = entitlementsKey();
+  if (!key) return;
+
+  try {
+    localStorage.setItem(
+      key,
+      JSON.stringify({
+        isSubscribed: state.isSubscribed,
+        adUsed: state.adUsed,
+        adUnlockedWallpaperId: state.adUnlockedWallpaperId,
+      })
+    );
+  } catch (err) {
+    // ignore storage failures (e.g. private browsing)
+  }
+}
+
+function updateUpgradeUi() {
+  const tierTitle = document.querySelector(".tier-left h2");
+  const tierSub = document.querySelector(".tier-left p");
+  const upgradeBtn = document.querySelector(".upgrade-btn");
+  if (!tierTitle || !tierSub || !upgradeBtn) return;
+
+  if (state.isSubscribed) {
+    tierTitle.textContent = "PREMIUM PLAN";
+    tierSub.textContent = "You have unlimited premium wallpapers";
+    upgradeBtn.textContent = "Active";
+    upgradeBtn.disabled = true;
+  } else {
+    tierTitle.textContent = "FREE PLAN";
+    tierSub.textContent = "Upgrade for Premium Wallpapers";
+    upgradeBtn.textContent = "Upgrade";
+    upgradeBtn.disabled = false;
+  }
 }
 
 /* =========================================================
@@ -452,11 +648,29 @@ function startCustomOrderPayment() {
 }
 
 function startPremiumUpgrade() {
+  if (!state.isSignedIn) {
+    showToast("Sign in first to subscribe");
+    return;
+  }
+
   openRazorpay({
     amount: 14900, // e.g. ₹149.00 in paise — adjust to your real price
     name: "DepthX — Premium",
     description: "Unlock premium wallpapers, AI edit & collections",
-    onSuccess: () => showToast("You're now Premium! 🎉"),
+    onSuccess: () => {
+      state.isSubscribed = true;
+      saveEntitlements();
+      updateUpgradeUi();
+      showToast("You're now Premium! 🎉");
+
+      // If they were trying to download a specific premium wallpaper,
+      // finish that download now that they're subscribed.
+      if (state.pendingUnlockWallpaper) {
+        const wp = state.pendingUnlockWallpaper;
+        state.pendingUnlockWallpaper = null;
+        performDownload(wp);
+      }
+    },
   });
 }
 
@@ -492,4 +706,5 @@ function openRazorpay({ amount, name, description, onSuccess }) {
     showToast("Payment failed, please try again");
   });
   rzp.open();
-}
+  }
+       
