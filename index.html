@@ -1,410 +1,526 @@
-/* =========================================================
-   DepthX — app logic
-   NOTE: replace GOOGLE_CLIENT_ID and RAZORPAY_KEY_ID with your
-   own keys before going live (see comments below).
-   ========================================================= */
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-const GOOGLE_CLIENT_ID = "452456583028-1l86bibq60ggkl3o1h5j88sed7v04eof.apps.googleusercontent.com";
-const RAZORPAY_KEY_ID = "rzp_test_XXXXXXXXXXXX";
+    <title>Premium Wallpaper</title>
 
-/* ---------------- In-memory state (no localStorage —
-   this keeps the app safe to preview as a live artifact) --------------- */
-const state = {
-  activeTab: "explore",
-  activeCategory: "All",
-  activeFilter: "grid",
-  searchQuery: "",
-  favorites: new Set(),
-  isSignedIn: false,
-  user: null,
-  currentWallpaper: null,
-};
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-/* ---------------- Sample wallpaper data ---------------- */
-const WALLPAPERS = [
-  { id: "w1", title: "Nebula Drift", time: "02:30", category: "Space", premium: true, tag: "fire", img: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=600" },
-  { id: "w2", title: "Orbit Line", time: "09:15", category: "Space", premium: false, tag: "gift", img: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=600" },
-  { id: "w3", title: "Neon Grid", time: "23:47", category: "Cyber", premium: true, tag: "fire", img: "https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=600" },
-  { id: "w4", title: "Circuit City", time: "18:05", category: "Cyber", premium: false, tag: "gift", img: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600" },
-  { id: "w5", title: "Misty Pines", time: "06:20", category: "Nature", premium: false, tag: "gift", img: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600" },
-  { id: "w6", title: "Golden Field", time: "17:40", category: "Nature", premium: true, tag: "diamond", img: "https://images.unsplash.com/photo-1500534623283-312aade485b7?w=600" },
-  { id: "w7", title: "Arcade Glow", time: "21:10", category: "Gaming", premium: true, tag: "diamond", img: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600" },
-  { id: "w8", title: "Pixel Rush", time: "14:55", category: "Gaming", premium: false, tag: "gift", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600" },
-  { id: "w9", title: "Deep Sky", time: "01:12", category: "Space", premium: true, tag: "diamond", img: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=600" },
-  { id: "w10", title: "Rain Forest", time: "07:30", category: "Nature", premium: false, tag: "fire", img: "https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=600" },
-];
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
 
-const SAMPLES = WALLPAPERS.slice(0, 4);
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
 
-/* =========================================================
-   Init
-   ========================================================= */
-document.addEventListener("DOMContentLoaded", () => {
-  initGoogleSignIn();
-  renderWallpapers();
-  renderSamples();
-  wireSearch();
-  wireModalClose();
-});
+    <!-- Google Identity Services (Sign in with Google) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-/* =========================================================
-   Tabs / navigation
-   ========================================================= */
-function switchTab(tab, el) {
-  state.activeTab = tab;
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
-  document.querySelectorAll(".screen-content").forEach((s) => s.classList.remove("active"));
-  document.getElementById(`screen-${tab}`).classList.add("active");
+  <body>
+    <div class="app-container">
+      <!-- ========================= -->
+      <!-- LOGIN GATE (shown first, hides after Google Sign-In) -->
+      <!-- ========================= -->
 
-  document.querySelectorAll(".nav-item").forEach((n) => n.classList.remove("active"));
-  el.classList.add("active");
-}
+      <div id="login-gate" class="login-gate">
+        <div class="login-bg-grid">
+          <img src="https://picsum.photos/seed/wallpaper1/300/400" alt="" />
+          <img src="https://picsum.photos/seed/wallpaper2/300/400" alt="" />
+          <img src="https://picsum.photos/seed/wallpaper3/300/400" alt="" />
+          <img src="https://picsum.photos/seed/wallpaper4/300/400" alt="" />
+          <img src="https://picsum.photos/seed/wallpaper5/300/400" alt="" />
+          <img src="https://picsum.photos/seed/wallpaper6/300/400" alt="" />
+          <img src="https://picsum.photos/seed/wallpaper7/300/400" alt="" />
+          <img src="https://picsum.photos/seed/wallpaper8/300/400" alt="" />
+          <img src="https://picsum.photos/seed/wallpaper9/300/400" alt="" />
+          <img src="https://picsum.photos/seed/wallpaper10/300/400" alt="" />
+          <img src="https://picsum.photos/seed/wallpaper11/300/400" alt="" />
+          <img src="https://picsum.photos/seed/wallpaper12/300/400" alt="" />
+        </div>
 
-function openCategory(category) {
-  state.activeCategory = category;
-  state.activeFilter = "grid";
-  document.getElementById("explore-title").textContent = category;
+        <div class="login-gate-fade"></div>
 
-  document.querySelectorAll(".sub-cat-item").forEach((s) => s.classList.remove("active"));
-  document.querySelector('.sub-cat-item[data-filter="grid"]').classList.add("active");
+        <div class="login-content">
+          <div class="login-app-icon">02:30</div>
 
-  switchTab("explore", document.getElementById("nav-explore"));
-  renderWallpapers();
-}
+          <h1 class="login-app-name">DepthX</h1>
 
-function switchSubCat(el) {
-  document.querySelectorAll(".sub-cat-item").forEach((s) => s.classList.remove("active"));
-  el.classList.add("active");
-  state.activeFilter = el.dataset.filter;
-  renderWallpapers();
-}
+          <p class="login-tagline">
+            Enjoy stunning depth &amp; parallax effect wallpapers...
+          </p>
 
-function filterByFavoritesQuick() {
-  state.activeFilter = "star";
-  document.querySelectorAll(".sub-cat-item").forEach((s) => s.classList.remove("active"));
-  document.querySelector('.sub-cat-item[data-filter="star"]').classList.add("active");
-  renderWallpapers();
-}
+          <p class="login-by">By AppsLab Co.</p>
 
-/* =========================================================
-   Search
-   ========================================================= */
-function wireSearch() {
-  const input = document.getElementById("search-input");
-  input.addEventListener("input", (e) => {
-    state.searchQuery = e.target.value.trim().toLowerCase();
-    renderWallpapers();
-  });
-}
+          <!-- Google renders its real sign-in button inside this slot -->
+          <div id="google-signin-btn-gate" class="login-google-slot"></div>
 
-/* =========================================================
-   Rendering
-   ========================================================= */
-function getFilteredWallpapers() {
-  let list = WALLPAPERS.slice();
+          <!-- Fallback button — shown only if Google's real button fails to
+             render (e.g. domain not yet added to Authorized JavaScript
+             origins, or the GIS script got blocked) -->
+          <button
+            id="google-fallback-btn"
+            class="login-google-fallback"
+            style="display: none"
+            onclick="handleFallbackGoogleClick()"
+          >
+            <i class="fa-brands fa-google"></i>
+            Sign in with Google
+          </button>
 
-  if (state.activeCategory !== "All") {
-    list = list.filter((w) => w.category === state.activeCategory);
-  }
+          <p id="signin-status" class="signin-status">
+            Loading Google Sign-In…
+          </p>
 
-  if (state.searchQuery) {
-    list = list.filter((w) => w.title.toLowerCase().includes(state.searchQuery));
-  }
+          <p class="login-terms">
+            By continuing, you agree to our
+            <a href="#">Terms of Service</a>
+            and
+            <a href="#">Privacy Policy</a>
+          </p>
 
-  switch (state.activeFilter) {
-    case "gift":
-      list = list.filter((w) => !w.premium);
-      break;
-    case "diamond":
-      list = list.filter((w) => w.premium);
-      break;
-    case "star":
-      list = list.filter((w) => state.favorites.has(w.id));
-      break;
-    case "fire":
-      list = list.filter((w) => w.tag === "fire");
-      break;
-    case "shuffle":
-      list = list.sort(() => Math.random() - 0.5);
-      break;
-    default:
-      break; // "grid" = no extra filtering
-  }
+          <!-- Visible debug output — shows any Google Sign-In errors directly
+             on screen so they can be read/screenshotted without DevTools.
+             Safe to delete once sign-in is working. -->
+          <div id="debug-log" class="debug-log"></div>
+        </div>
+      </div>
 
-  return list;
-}
+      <!-- ========================= -->
+      <!-- CATEGORIES SCREEN -->
+      <!-- ========================= -->
 
-function renderWallpapers() {
-  const container = document.getElementById("wallpaper-grid-container");
-  const list = getFilteredWallpapers();
+      <div id="screen-categories" class="screen-content">
+        <div class="page-header">
+          <h1>Collection</h1>
+        </div>
 
-  if (list.length === 0) {
-    container.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:30px 0;">No wallpapers found.</p>`;
-    return;
-  }
+        <p class="category-subtitle"></p>
 
-  container.innerHTML = list.map(cardHtml).join("");
-}
+        <div class="carousel-container">
+          <div
+            class="carousel-card"
+            style="
+              background-image: url(&quot;https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=900&quot;);
+            "
+          >
+            <div class="carousel-info">
+              <h2>Aero Space</h2>
 
-function renderSamples() {
-  document.getElementById("samples-grid").innerHTML = SAMPLES.map(cardHtml).join("");
-}
+              <button class="explore-pill-btn" onclick="openCategory('Space')">
+                Explore
+              </button>
+            </div>
+          </div>
 
-function cardHtml(w) {
-  const favClass = state.favorites.has(w.id) ? "favorited" : "";
-  return `
-    <div class="wallpaper-card" style="background-image:url('${w.img}')" onclick="openWallpaper('${w.id}')">
-      <div class="card-top">
-        <div class="star-badge ${favClass}" onclick="toggleFavorite(event, '${w.id}')">
+          <div
+            class="carousel-card"
+            style="
+              background-image: url(&quot;https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=900&quot;);
+            "
+          >
+            <div class="carousel-info">
+              <h2>Cyber</h2>
+
+              <button class="explore-pill-btn" onclick="openCategory('Cyber')">
+                Explore
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="carousel-card"
+            style="
+              background-image: url(&quot;https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=900&quot;);
+            "
+          >
+            <div class="carousel-info">
+              <h2>Nature</h2>
+
+              <button class="explore-pill-btn" onclick="openCategory('Nature')">
+                Explore
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="carousel-card"
+            style="
+              background-image: url(&quot;https://images.unsplash.com/photo-1511512578047-dfb367046420?w=900&quot;);
+            "
+          >
+            <div class="carousel-info">
+              <h2>Gaming</h2>
+
+              <button class="explore-pill-btn" onclick="openCategory('Gaming')">
+                Explore
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================= -->
+      <!-- EXPLORE SCREEN -->
+      <!-- ========================= -->
+
+      <div id="screen-explore" class="screen-content active">
+        <div class="explore-header">
+          <h1 id="explore-title">All Wallpapers</h1>
+
+          <div class="search-box">
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Search Wallpapers..."
+            />
+
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+        </div>
+
+        <div class="sub-categories-bar">
+          <div
+            class="sub-cat-item active"
+            data-filter="grid"
+            onclick="switchSubCat(this)"
+          >
+            <i class="fa-solid fa-border-all"></i>
+
+            <span class="sub-cat-text"> Grid </span>
+          </div>
+
+          <div
+            class="sub-cat-item"
+            data-filter="gift"
+            onclick="switchSubCat(this)"
+          >
+            <i class="fa-solid fa-gift"></i>
+
+            <span class="sub-cat-text"> Free </span>
+          </div>
+
+          <div
+            class="sub-cat-item"
+            data-filter="diamond"
+            onclick="switchSubCat(this)"
+          >
+            <i class="fa-solid fa-gem"></i>
+
+            <span class="sub-cat-text"> Premium </span>
+          </div>
+          <div
+            class="sub-cat-item"
+            data-filter="shuffle"
+            onclick="switchSubCat(this)"
+          >
+            <i class="fa-solid fa-shuffle"></i>
+
+            <span class="sub-cat-text"> Shuffle </span>
+          </div>
+
+          <div
+            class="sub-cat-item"
+            data-filter="star"
+            onclick="switchSubCat(this)"
+          >
+            <i class="fa-solid fa-star"></i>
+
+            <span class="sub-cat-text"> Favorites </span>
+          </div>
+
+          <div
+            class="sub-cat-item"
+            data-filter="fire"
+            onclick="switchSubCat(this)"
+          >
+            <i class="fa-solid fa-fire"></i>
+
+            <span class="sub-cat-text"> Trending </span>
+          </div>
+        </div>
+
+        <div class="wallpaper-grid" id="wallpaper-grid-container"></div>
+
+        <div class="fab-heart" onclick="filterByFavoritesQuick()">
           <i class="fa-solid fa-heart"></i>
         </div>
-        ${w.premium ? `<div class="premium-badge">PRO</div>` : `<div></div>`}
       </div>
-      <div class="card-bottom">
-        <div class="card-time">${w.category}</div>
-        <div class="card-title">${w.title}</div>
+
+      <!-- ========================= -->
+      <!-- REQUEST SCREEN -->
+      <!-- ========================= -->
+
+      <div id="screen-request" class="screen-content">
+        <div class="page-header">
+          <h1>Custom Wallpaper</h1>
+        </div>
+
+        <div class="custom-card">
+          <div class="custom-card-header">
+            <h3>Order Your Custom</h3>
+
+            <div class="sparkle-icon">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+          </div>
+
+          <h2>Depth Wallpaper</h2>
+
+          <p>
+            Upload your own image and receive a premium AI generated depth
+            wallpaper in ultra HD quality.
+          </p>
+
+          <div class="privacy-info">
+            <i class="fa-solid fa-lock"></i>
+
+            <span> Private • Visible only to you </span>
+          </div>
+
+          <div class="pricing-row">
+            <div class="price-tag">
+              ₹35
+
+              <span style="font-size: 12px; font-weight: 400; opacity: 0.8">
+                / Wallpaper
+              </span>
+            </div>
+
+            <button class="order-btn" onclick="startCustomOrderPayment()">
+              Order Now
+            </button>
+          </div>
+        </div>
+
+        <div class="section-title">Sample Wallpapers</div>
+
+        <div id="samples-grid" class="wallpaper-grid"></div>
       </div>
+      <!-- ========================= -->
+      <!-- SETTINGS SCREEN -->
+      <!-- ========================= -->
+
+      <div id="screen-settings" class="screen-content">
+        <div class="page-header">
+          <h1>Settings</h1>
+        </div>
+
+        <div class="profile-card" id="profile-signed-in">
+          <div class="profile-left">
+            <div class="avatar" id="profile-avatar">U</div>
+
+            <div>
+              <div class="profile-name" id="profile-name-text">
+                Not signed in
+              </div>
+
+              <div class="profile-email" id="profile-email-text"></div>
+
+              <div class="verified-badge">
+                <i class="fa-solid fa-circle-check"></i>
+
+                Verified
+              </div>
+            </div>
+          </div>
+
+          <i
+            class="fa-solid fa-right-from-bracket logout-btn"
+            onclick="signOutGoogle()"
+          >
+          </i>
+        </div>
+
+        <div class="tier-card">
+          <div class="tier-left">
+            <h2>FREE PLAN</h2>
+
+            <p>Upgrade for Premium Wallpapers</p>
+          </div>
+
+          <button class="upgrade-btn" onclick="startPremiumUpgrade()">
+            Upgrade
+          </button>
+        </div>
+
+        <div class="features-scroll">
+          <div class="feature-item">
+            <div class="feature-icon-wrapper">
+              <i class="fa-solid fa-gem"></i>
+
+              <div class="lock-icon">
+                <i class="fa-solid fa-lock"></i>
+              </div>
+            </div>
+
+            <p>Premium</p>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon-wrapper">
+              <i class="fa-solid fa-palette"></i>
+
+              <div class="lock-icon">
+                <i class="fa-solid fa-lock"></i>
+              </div>
+            </div>
+
+            <p>AI Edit</p>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon-wrapper">
+              <i class="fa-solid fa-folder-open"></i>
+
+              <div class="lock-icon">
+                <i class="fa-solid fa-lock"></i>
+              </div>
+            </div>
+
+            <p>Collections</p>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon-wrapper">
+              <i class="fa-solid fa-gauge-high"></i>
+
+              <div class="lock-icon">
+                <i class="fa-solid fa-lock"></i>
+              </div>
+            </div>
+
+            <p>Unlimited</p>
+          </div>
+        </div>
+
+        <div class="no-ads-card">
+          <div class="no-ads-icon">
+            <i class="fa-solid fa-ban"></i>
+          </div>
+
+          <div class="no-ads-info">
+            <h4>No Ads</h4>
+
+            <p>Enjoy an ad-free premium experience.</p>
+          </div>
+        </div>
+
+        <div class="limits-card">
+          <div class="section-title">Usage</div>
+
+          <div class="limit-row">
+            <div class="limit-label">
+              <span> Daily </span>
+
+              <span> 35 / 100 </span>
+            </div>
+
+            <div class="limit-bar">
+              <div class="limit-progress" style="width: 35%"></div>
+            </div>
+          </div>
+          <div class="limit-row">
+            <div class="limit-label">
+              <span> Hourly </span>
+
+              <span> 12 / 30 </span>
+            </div>
+
+            <div class="limit-bar">
+              <div class="limit-progress" style="width: 40%"></div>
+            </div>
+          </div>
+
+          <button class="refresh-btn" onclick="location.reload()">
+            Refresh Dashboard
+          </button>
+        </div>
+      </div>
+
+      <!-- ========================= -->
+      <!-- Bottom Navigation -->
+      <!-- ========================= -->
+
+      <nav class="bottom-nav">
+        <div
+          class="nav-item"
+          id="nav-categories"
+          onclick="switchTab('categories', this)"
+        >
+          <div class="nav-icon-wrapper">
+            <i class="fa-solid fa-layer-group"></i>
+          </div>
+
+          <span> Categories </span>
+        </div>
+
+        <div
+          class="nav-item active"
+          id="nav-explore"
+          onclick="switchTab('explore', this)"
+        >
+          <div class="nav-icon-wrapper">
+            <i class="fa-solid fa-compass"></i>
+          </div>
+
+          <span> Explore </span>
+        </div>
+
+        <div
+          class="nav-item"
+          id="nav-request"
+          onclick="switchTab('request', this)"
+        >
+          <div class="nav-icon-wrapper">
+            <i class="fa-solid fa-circle-plus"></i>
+          </div>
+
+          <span> Request </span>
+        </div>
+
+        <div
+          class="nav-item"
+          id="nav-settings"
+          onclick="switchTab('settings', this)"
+        >
+          <div class="nav-icon-wrapper">
+            <i class="fa-solid fa-gear"></i>
+          </div>
+
+          <span> Settings </span>
+        </div>
+      </nav>
+
+      <!-- Wallpaper Preview Modal -->
+
+      <div id="wallpaper-modal" class="wallpaper-modal">
+        <div id="modal-preview-bg" class="modal-preview-bg"></div>
+
+        <h2 id="modal-wallpaper-title"></h2>
+
+        <button id="modal-download-action">Download</button>
+
+        <button id="modal-set-action">Set Wallpaper</button>
+      </div>
+
+      <!-- Toast -->
+
+      <div id="app-toast" class="toast"></div>
     </div>
-  `;
-}
 
-function toggleFavorite(event, id) {
-  event.stopPropagation();
-  if (state.favorites.has(id)) {
-    state.favorites.delete(id);
-  } else {
-    state.favorites.add(id);
-  }
-  renderWallpapers();
-  renderSamples();
-}
+    <!-- Razorpay Checkout SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-/* =========================================================
-   Wallpaper preview modal
-   ========================================================= */
-function openWallpaper(id) {
-  const wp = WALLPAPERS.find((w) => w.id === id) || SAMPLES.find((w) => w.id === id);
-  if (!wp) return;
-
-  state.currentWallpaper = wp;
-
-  document.getElementById("modal-preview-bg").style.backgroundImage = `url('${wp.img}')`;
-  document.getElementById("modal-wallpaper-title").textContent = wp.title;
-  document.getElementById("wallpaper-modal").classList.add("active");
-}
-
-function closeWallpaperModal() {
-  document.getElementById("wallpaper-modal").classList.remove("active");
-}
-
-function wireModalClose() {
-  const modal = document.getElementById("wallpaper-modal");
-  // clicking the "x" pseudo-element area (top-right) closes the modal
-  modal.addEventListener("click", (e) => {
-    const rect = modal.getBoundingClientRect();
-    const clickedCloseZone = e.clientX > rect.right - 56 && e.clientY < rect.top + 56;
-    if (clickedCloseZone) closeWallpaperModal();
-  });
-
-  document.getElementById("modal-download-action").addEventListener("click", () => {
-    if (!state.currentWallpaper) return;
-    if (state.currentWallpaper.premium && !state.isSignedIn) {
-      showToast("Sign in to download premium wallpapers");
-      return;
-    }
-    const a = document.createElement("a");
-    a.href = state.currentWallpaper.img;
-    a.download = `${state.currentWallpaper.title}.jpg`;
-    a.target = "_blank";
-    a.click();
-    showToast("Download started");
-  });
-
-  document.getElementById("modal-set-action").addEventListener("click", () => {
-    showToast(`"${state.currentWallpaper?.title}" set as wallpaper`);
-    closeWallpaperModal();
-  });
-}
-
-/* =========================================================
-   Toast
-   ========================================================= */
-let toastTimer = null;
-function showToast(message) {
-  const toast = document.getElementById("app-toast");
-  toast.textContent = message;
-  toast.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
-}
-
-/* =========================================================
-   Google Sign-In
-   ========================================================= */
-function initGoogleSignIn() {
-  const statusEl = document.getElementById("signin-status");
-  const fallbackBtn = document.getElementById("google-fallback-btn");
-
-  if (typeof google === "undefined" || !google.accounts) {
-    statusEl.textContent = "Couldn't load Google Sign-In";
-    fallbackBtn.style.display = "flex";
-    return;
-  }
-
-  try {
-    google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      callback: handleCredentialResponse,
-      auto_select: false,
-    });
-
-    google.accounts.id.renderButton(document.getElementById("google-signin-btn-gate"), {
-      theme: "filled_white",
-      size: "large",
-      shape: "pill",
-      width: 320,
-    });
-
-    statusEl.textContent = "";
-  } catch (err) {
-    logDebug("Google init failed: " + err.message);
-    fallbackBtn.style.display = "flex";
-    statusEl.textContent = "Sign-in unavailable — using fallback";
-  }
-}
-
-function handleCredentialResponse(response) {
-  try {
-    const payload = decodeJwt(response.credential);
-    signInUser({
-      name: payload.name,
-      email: payload.email,
-      picture: payload.picture,
-    });
-  } catch (err) {
-    logDebug("Credential decode failed: " + err.message);
-    showToast("Sign-in failed, please try again");
-  }
-}
-
-function handleFallbackGoogleClick() {
-  // Used only if the real Google button fails to render
-  // (e.g. this origin isn't added to Authorized JavaScript origins yet).
-  logDebug("Fallback button clicked — check Authorized JavaScript origins in Google Cloud Console.");
-  showToast("Sign-in isn't configured yet");
-}
-
-function decodeJwt(token) {
-  const base64Url = token.split(".")[1];
-  const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-  const json = decodeURIComponent(
-    atob(base64)
-      .split("")
-      .map((c) => "%" + c.charCodeAt(0).toString(16).padStart(2, "0"))
-      .join("")
-  );
-  return JSON.parse(json);
-}
-
-function signInUser(user) {
-  state.isSignedIn = true;
-  state.user = user;
-
-  document.getElementById("login-gate").classList.add("hidden");
-
-  document.getElementById("profile-name-text").textContent = user.name;
-  document.getElementById("profile-email-text").textContent = user.email;
-
-  const avatar = document.getElementById("profile-avatar");
-  if (user.picture) {
-    avatar.innerHTML = `<img src="${user.picture}" style="width:100%;height:100%;object-fit:cover;" />`;
-  } else {
-    avatar.textContent = user.name?.[0]?.toUpperCase() || "U";
-  }
-
-  showToast(`Welcome, ${user.name.split(" ")[0]}!`);
-}
-
-function signOutGoogle() {
-  state.isSignedIn = false;
-  state.user = null;
-
-  if (typeof google !== "undefined" && google.accounts) {
-    google.accounts.id.disableAutoSelect();
-  }
-
-  document.getElementById("profile-name-text").textContent = "Not signed in";
-  document.getElementById("profile-email-text").textContent = "";
-  document.getElementById("profile-avatar").innerHTML = "U";
-
-  document.getElementById("login-gate").classList.remove("hidden");
-  showToast("Signed out");
-}
-
-function logDebug(msg) {
-  const el = document.getElementById("debug-log");
-  el.classList.add("show");
-  const line = document.createElement("div");
-  line.textContent = msg;
-  el.appendChild(line);
-}
-
-/* =========================================================
-   Payments (Razorpay)
-   NOTE: These call Razorpay Checkout directly from the client.
-   In production, create the order on your backend first
-   (to avoid trusting the amount from the client), then pass
-   the order_id here.
-   ========================================================= */
-function startCustomOrderPayment() {
-  openRazorpay({
-    amount: 3500, // ₹35.00 in paise
-    name: "DepthX — Custom Wallpaper",
-    description: "AI generated depth wallpaper",
-    onSuccess: () => showToast("Order placed! We'll notify you when it's ready."),
-  });
-}
-
-function startPremiumUpgrade() {
-  openRazorpay({
-    amount: 14900, // e.g. ₹149.00 in paise — adjust to your real price
-    name: "DepthX — Premium",
-    description: "Unlock premium wallpapers, AI edit & collections",
-    onSuccess: () => showToast("You're now Premium! 🎉"),
-  });
-}
-
-function openRazorpay({ amount, name, description, onSuccess }) {
-  if (typeof Razorpay === "undefined") {
-    showToast("Payments unavailable right now");
-    return;
-  }
-
-  const options = {
-    key: RAZORPAY_KEY_ID,
-    amount,
-    currency: "INR",
-    name,
-    description,
-    prefill: {
-      name: state.user?.name || "",
-      email: state.user?.email || "",
-    },
-    theme: { color: "#1a6cf0" },
-    handler: function () {
-      onSuccess?.();
-    },
-    modal: {
-      ondismiss: function () {
-        showToast("Payment cancelled");
-      },
-    },
-  };
-
-  const rzp = new Razorpay(options);
-  rzp.on("payment.failed", function () {
-    showToast("Payment failed, please try again");
-  });
-  rzp.open();
-}
-      
+    <script src="script.js"></script>
+  </body>
+   </html>
+   
