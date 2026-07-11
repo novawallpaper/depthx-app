@@ -22,19 +22,105 @@ const state = {
 
 /* ---------------- Sample wallpaper data ---------------- */
 const WALLPAPERS = [
-  { id: "w1", title: "Nebula Drift", time: "02:30", category: "Space", premium: true, tag: "fire", img: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=600" },
-  { id: "w2", title: "Orbit Line", time: "09:15", category: "Space", premium: false, tag: "gift", img: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=600" },
-  { id: "w3", title: "Neon Grid", time: "23:47", category: "Cyber", premium: true, tag: "fire", img: "https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=600" },
-  { id: "w4", title: "Circuit City", time: "18:05", category: "Cyber", premium: false, tag: "gift", img: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600" },
-  { id: "w5", title: "Misty Pines", time: "06:20", category: "Nature", premium: false, tag: "gift", img: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600" },
-  { id: "w6", title: "Golden Field", time: "17:40", category: "Nature", premium: true, tag: "diamond", img: "https://images.unsplash.com/photo-1500534623283-312aade485b7?w=600" },
-  { id: "w7", title: "Arcade Glow", time: "21:10", category: "Gaming", premium: true, tag: "diamond", img: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600" },
-  { id: "w8", title: "Pixel Rush", time: "14:55", category: "Gaming", premium: false, tag: "gift", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600" },
-  { id: "w9", title: "Deep Sky", time: "01:12", category: "Space", premium: true, tag: "diamond", img: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=600" },
-  { id: "w10", title: "Rain Forest", time: "07:30", category: "Nature", premium: false, tag: "fire", img: "https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=600" },
+{
+id:"w1",
+title:"Wallpaper 1",
+category:"Space",
+premium:true,
+tag:"fire",
+img:"https://i.ibb.co/Kz81yjgy/10a83c4fd7e6525b092666eae2a24828.jpg"
+},
+{
+id:"w2",
+title:"Wallpaper 2",
+category:"Nature",
+premium:false,
+tag:"gift",
+img:"https://i.ibb.co/TBgPsR0D/e41abb1adaa447b0ace2f00943fc2cf6.jpg"
+},
+{
+id:"w3",
+title:"Wallpaper 3",
+category:"Gaming",
+premium:true,
+tag:"diamond",
+img:"https://i.ibb.co/prM7ZcbB/f5e4b804c06fb5441d2392f4d6361714.jpg"
+},
+{
+id:"w4",
+title:"Wallpaper 4",
+category:"Cyber",
+premium:false,
+tag:"gift",
+img:"https://i.ibb.co/RGVkzJxy/f5ae1610b81259691d8ac579db0ddb7c.jpg"
+},
+{
+id:"w5",
+title:"Wallpaper 5",
+category:"Nature",
+premium:true,
+tag:"fire",
+img:"https://i.ibb.co/JR3xrx4S/653a056fd4b86d41d868843de536ed9b.jpg"
+},
+{
+id:"w6",
+title:"Wallpaper 6",
+category:"Space",
+premium:false,
+tag:"gift",
+img:"https://i.ibb.co/zVKnHdyL/3087a2ae0bc62298d176b86580bbc2b0.jpg"
+},
+{
+id:"w7",
+title:"Wallpaper 7",
+category:"Gaming",
+premium:true,
+tag:"diamond",
+img:"https://i.ibb.co/3m8B4SJR/479f69994761abea0968e875f84bb8d3.jpg"
+},
+{
+id:"w8",
+title:"Wallpaper 8",
+category:"Cyber",
+premium:false,
+tag:"gift",
+img:"https://i.ibb.co/zWf2Nghf/c8a59f5672cb86f4b04da4adabb30111.jpg"
+},
+{
+id:"w9",
+title:"Wallpaper 9",
+category:"Nature",
+premium:true,
+tag:"fire",
+img:"https://i.ibb.co/z9j0y40/aa587ae4dd0e290dc436fd3e30e2fa5a.jpg"
+},
+{
+id:"w10",
+title:"Wallpaper 10",
+category:"Space",
+premium:false,
+tag:"gift",
+img:"https://i.ibb.co/TBSJPY1y/06e8afef8d9a920f428e997edca9e41f.jpg"
+},
+{
+id:"w11",
+title:"Wallpaper 11",
+category:"Gaming",
+premium:true,
+tag:"diamond",
+img:"https://i.ibb.co/kskPzj5r/c9130ea644806251ce4b1413af0865c9.jpg"
+},
+{
+id:"w12",
+title:"Wallpaper 12",
+category:"Cyber",
+premium:false,
+tag:"gift",
+img:"https://i.ibb.co/yBpwd5CJ/1db3adb82e25ecf99a201f21d6e6f324.jpg"
+}
 ];
 
-const SAMPLES = WALLPAPERS.slice(0, 4);
+const SAMPLES = WALLPAPERS.slice(0,4);
 
 /* =========================================================
    Init
