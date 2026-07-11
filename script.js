@@ -345,7 +345,7 @@ function shuffleWallpapers() {
 // ⚠️ Key Secret KABHI bhi is file mein ya kisi frontend code mein mat daalna.
 // Secret sirf backend server pe rehti hai (order create karne ke liye).
 
-const RAZORPAY_KEY_ID = "rzp_test_TCD8788xLE6UZd";
+const RAZORPAY_KEY_ID = "rzp_test_TC8rdQlrs9bLOu";
 
 const PREMIUM_PLAN_AMOUNT_PAISE = 19900; // ₹199
 const CUSTOM_ORDER_AMOUNT_PAISE = 3500; // ₹850
@@ -369,43 +369,10 @@ function localStorageSafeSet(key, value) {
     window.__appState[key] = value;
 }
 
-// Point this at your deployed backend (see /backend folder).
-const BACKEND_URL = "https://depthx-backend.onrender.com";
-
 async function createOrderOnServer(amountPaise, receiptLabel) {
-    try {
-        const res = await fetch(`${BACKEND_URL}/payments/create-order`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ amountPaise, receipt: receiptLabel })
-        });
-        if (!res.ok) throw new Error("Order creation failed");
-        const data = await res.json();
-        return data.orderId;
-    } catch (err) {
-        console.error("createOrderOnServer failed:", err);
-        showToast("Could not start payment — backend unreachable");
-        return null;
-    }
-}
-
-async function verifyPaymentOnServer(response) {
-    try {
-        const res = await fetch(`${BACKEND_URL}/payments/verify`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                order_id: response.razorpay_order_id,
-                payment_id: response.razorpay_payment_id,
-                signature: response.razorpay_signature
-            })
-        });
-        const data = await res.json();
-        return data.verified === true;
-    } catch (err) {
-        console.error("verifyPaymentOnServer failed:", err);
-        return false;
-    }
+    // DEMO MODE — no backend wired. Replace with a real fetch() to your
+    // backend order-creation endpoint for production use.
+    return null;
 }
 
 async function openRazorpayCheckout({ amountPaise, description, receiptLabel, onSuccess }) {
@@ -429,13 +396,8 @@ async function openRazorpayCheckout({ amountPaise, description, receiptLabel, on
             email: userProfile.email
         },
         theme: { color: "#1a6cf0" },
-        handler: async function (response) {
-            const verified = await verifyPaymentOnServer(response);
-            if (verified) {
-                if (onSuccess) onSuccess(response);
-            } else {
-                showToast("Payment could not be verified. Contact support.");
-            }
+        handler: function (response) {
+            if (onSuccess) onSuccess(response);
         },
         modal: {
             ondismiss: function () {
@@ -511,17 +473,14 @@ function unlockPremiumUI() {
 // 1. https://console.cloud.google.com/ pe jaake ek project banao.
 // 2. "APIs & Services > Credentials" me "OAuth client ID" banao,
 //    Application type = "Web application".
-// 3. "Authorized JavaScript origins" me apni site ka URL add karo:
-//    https://shopifly09-max.github.io   (sirf domain tak, /depthx-app
-//    ya trailing slash mat jodo)
-// 4. Wahan se mila hua Client ID neeche GOOGLE_CLIENT_ID me EXACT
-//    copy-paste karo — l (chhota L) aur 1 (ek), ya o (letter) aur
-//    0 (zero) aapas me mat badlo, ye alag characters hain.
+// 3. "Authorized JavaScript origins" me apni site ka URL add karo
+//    (e.g. https://shopifly09-max.github.io, ya local testing ke liye
+//    http://localhost:PORT). NOTE: sirf domain tak, /depthx-app wagera
+//    mat jodo yahan.
+// 4. Wahan se mila hua Client ID neeche GOOGLE_CLIENT_ID me paste karo.
 // 5. Bas — koi backend secret yaha nahi chahiye, GIS client-side hi
 //    kaam karta hai aur ek signed ID token deta hai.
 
-// ⚠️ CHECK THIS VALUE against Google Cloud Console → Credentials before
-// deploying. Copy it directly from there rather than retyping it.
 const GOOGLE_CLIENT_ID = "452456583028-1l86bibq60ggkl3o1h5j88sed7v04eof.apps.googleusercontent.com";
 
 const loginGate = document.getElementById("login-gate");
@@ -553,8 +512,9 @@ function renderProfileUI() {
 
 // Decodes the JWT payload portion of the Google ID token so we can read
 // the user's name/email/picture. This is display-only decoding — it does
-// NOT verify the token's signature. Real signature verification happens
-// server-side, via the /auth/google/verify endpoint on your backend.
+// NOT verify the token's signature. Real signature verification must
+// happen on a backend server before you trust this data for anything
+// beyond showing it in the UI.
 function decodeJwtPayload(token) {
     try {
         const base64Url = token.split(".")[1];
@@ -572,28 +532,7 @@ function decodeJwtPayload(token) {
     }
 }
 
-// Sends the raw Google ID token to the backend for real cryptographic
-// verification. Only trust the returned user info, not the client-side
-// decoded payload, for anything security-sensitive.
-async function verifyGoogleTokenOnServer(credential) {
-    try {
-        const res = await fetch(`${BACKEND_URL}/auth/google/verify`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ credential })
-        });
-        if (!res.ok) throw new Error("Verification failed");
-        const data = await res.json();
-        return data.verified ? data.user : null;
-    } catch (err) {
-        console.error("verifyGoogleTokenOnServer failed:", err);
-        return null;
-    }
-}
-
-async function handleGoogleCredentialResponse(response) {
-    // Show something immediately using the unverified decode, then
-    // confirm with the backend right after.
+function handleGoogleCredentialResponse(response) {
     const payload = decodeJwtPayload(response.credential);
     if (!payload) {
         showToast("Sign-In failed — could not read Google response.");
@@ -609,13 +548,6 @@ async function handleGoogleCredentialResponse(response) {
     localStorageSafeSet("isLoggedIn", "true");
     renderProfileUI();
     showToast(`Welcome, ${userProfile.name}! 👋`);
-
-    const verifiedUser = await verifyGoogleTokenOnServer(response.credential);
-    if (!verifiedUser) {
-        console.warn("Backend could not verify Google token — signing out for safety.");
-        showToast("Sign-in could not be verified. Please try again.");
-        signOutGoogle();
-    }
 }
 
 function signOutGoogle() {
@@ -623,77 +555,4 @@ function signOutGoogle() {
     localStorageSafeSet("isPremium", "false");
     userProfile = { name: "", email: "", picture: "" };
     if (typeof google !== "undefined" && google.accounts && google.accounts.id) {
-        google.accounts.id.disableAutoSelect();
-    }
-    renderProfileUI();
-}
-
-// ======================================================
-// PART 5 - INIT GOOGLE SIGN-IN
-// ======================================================
-// This part keeps going missing when the file gets truncated during
-// copy/paste. It MUST be present or you'll get:
-// "Uncaught ReferenceError: waitForGoogleThenInit is not defined"
-// and the Google button will never render.
-
-function waitForGoogleThenInit() {
-    const statusEl = document.getElementById("signin-status");
-    const fallbackBtn = document.getElementById("google-fallback-btn");
-    let attempts = 0;
-
-    const poll = setInterval(() => {
-        attempts++;
-
-        if (typeof google !== "undefined" && google.accounts && google.accounts.id) {
-            clearInterval(poll);
-            initGoogleSignIn();
-            return;
-        }
-
-        // Give up after ~5 seconds and show the fallback button instead
-        if (attempts > 25) {
-            clearInterval(poll);
-            console.error("Google Identity Services script did not load in time.");
-            if (statusEl) statusEl.innerText = "Sign-in unavailable — tap below";
-            if (fallbackBtn) fallbackBtn.style.display = "flex";
-        }
-    }, 200);
-}
-
-function initGoogleSignIn() {
-    const statusEl = document.getElementById("signin-status");
-    const slot = document.getElementById("google-signin-btn-gate");
-    const fallbackBtn = document.getElementById("google-fallback-btn");
-
-    try {
-        google.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
-            callback: handleGoogleCredentialResponse,
-            auto_select: false
-        });
-
-        if (slot) {
-            google.accounts.id.renderButton(slot, {
-                theme: "outline",
-                size: "large",
-                width: 300,
-                shape: "pill",
-                text: "signin_with"
-            });
-        }
-
-        if (statusEl) statusEl.innerText = "";
-    } catch (err) {
-        console.error("Google Sign-In init failed: " + (err && err.message ? err.message : err));
-        if (statusEl) statusEl.innerText = "Sign-in unavailable — tap below";
-        if (fallbackBtn) fallbackBtn.style.display = "flex";
-    }
-}
-
-function handleFallbackGoogleClick() {
-    if (typeof google !== "undefined" && google.accounts && google.accounts.id) {
-        google.accounts.id.prompt();
-    } else {
-        showToast("Google Sign-In failed to load. Check your connection.");
-    }
-}
+        
