@@ -89,7 +89,6 @@ const WALLPAPERS = [
   { id: "w20", title: "Login Frame 10", time: "16:50", category: "Nature", premium: false, tag: "gift", img: "https://i.ibb.co/TBSJPY1y/06e8afef8d9a920f428e997edca9e41f.jpg" },
   { id: "w21", title: "Login Frame 11", time: "10:35", category: "Abstract", premium: true, tag: "diamond", img: "https://i.ibb.co/kskPzj5r/c9130ea644806251ce4b1413af0865c9.jpg" },
   { id: "w22", title: "Login Frame 12", time: "04:00", category: "Nature", premium: false, tag: "gift", img: "https://i.ibb.co/yBpwd5CJ/1db3adb82e25ecf99a201f21d6e6f324.jpg" },
-  { id: "w23", title: "Login Frame 13", time: "06:00", category: "Nature", premium: true, tag: "diamond", img: "https://i.ibb.co/yBpwd5CJ/1db3adb82e25ecf99a201f21d6e6f324.jpg" },
 ];
 
 const SAMPLES = WALLPAPERS.slice(0, 4);
