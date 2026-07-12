@@ -71,12 +71,13 @@ const COLLECTIONS = [
 
 /* ---------------- Sample wallpaper data ---------------- */
 const WALLPAPERS = [
-  { id: "w1", title: "Wallpaper 1", time: "02:30", category: "Space", premium: true,  tag: "fire", img: "https://novawallpaper.github.io/depthx-app/1.jpg" },
+  { id: "w1", title: "Wallpaper 1", time: "02:30", category: "Space", premium: true, tag: "fire", img: "https://novawallpaper.github.io/depthx-app/1.jpg" },
   { id: "w2", title: "Wallpaper 2", time: "09:15", category: "Space", premium: false, tag: "gift", img: "https://novawallpaper.github.io/depthx-app/2.jpg" },
-  { id: "w3", title: "Wallpaper 3", time: "23:47", category: "Cyber", premium: true,  tag: "fire", img: "https://novawallpaper.github.io/depthx-app/3.jpg" },
+  { id: "w3", title: "Wallpaper 3", time: "23:47", category: "Cyber", premium: true, tag: "fire", img: "https://novawallpaper.github.io/depthx-app/3.jpg" },
   { id: "w4", title: "Wallpaper 4", time: "18:05", category: "Cyber", premium: false, tag: "gift", img: "https://novawallpaper.github.io/depthx-app/4.jpg" },
   { id: "w5", title: "Wallpaper 5", time: "06:20", category: "Nature", premium: false, tag: "gift", img: "https://novawallpaper.github.io/depthx-app/5.jpg" },
-  { id: "w6", title: "Wallpaper 6", time: "17:40", category: "Nature", premium: true,  tag: "diamond", img: "https://novawallpaper.github.io/depthx-app/6.jpg" },
+  { id: "w6", title: "Wallpaper 6", time: "17:40", category: "Nature", premium: true, tag: "diamond", img: "https://novawallpaper.github.io/depthx-app/6.jpg" },
+
   { id: "w11", title: "Login Frame 01", time: "03:10", category: "Abstract", premium: false, tag: "gift", img: "https://i.ibb.co/Kz81yjgy/10a83c4fd7e6525b092666eae2a24828.jpg" },
   { id: "w12", title: "Login Frame 02", time: "11:25", category: "Abstract", premium: false, tag: "gift", img: "https://i.ibb.co/TBgPsR0D/e41abb1adaa447b0ace2f00943fc2cf6.jpg" },
   { id: "w13", title: "Login Frame 03", time: "15:40", category: "Abstract", premium: true, tag: "diamond", img: "https://i.ibb.co/prM7ZcbB/f5e4b804c06fb5441d2392f4d6361714.jpg" },
@@ -84,11 +85,16 @@ const WALLPAPERS = [
   { id: "w15", title: "Login Frame 05", time: "08:15", category: "Nature", premium: true, tag: "fire", img: "https://i.ibb.co/JR3xrx4S/653a056fd4b86d41d868843de536ed9b.jpg" },
   { id: "w16", title: "Login Frame 06", time: "22:30", category: "Dark", premium: false, tag: "gift", img: "https://i.ibb.co/zVKnHdyL/3087a2ae0bc62298d176b86580bbc2b0.jpg" },
   { id: "w17", title: "Login Frame 07", time: "05:45", category: "Nature", premium: false, tag: "gift", img: "https://i.ibb.co/3m8B4SJR/479f69994761abea0968e875f84bb8d3.jpg" },
-  { id: "w18", title: "Login Frame 08", time: "13:20", category: "Minimal", premium: true, tag: "diamond", img: "https://i.ibb.co/zWf2Nghf/c8a59f5672cb86f4b04da4adabb30111.jpg" },
+  { id: "w18", title: "Login Frame 08", time: "13:20", category: "Minimal", premium: true, tag: "diamond", img: "https://novawallpaper.github.io/depthx-app/pexels-steve-29986988.jpg" },
   { id: "w19", title: "Login Frame 09", time: "20:05", category: "Dark", premium: false, tag: "fire", img: "https://i.ibb.co/z9j0y40/aa587ae4dd0e290dc436fd3e30e2fa5a.jpg" },
   { id: "w20", title: "Login Frame 10", time: "16:50", category: "Nature", premium: false, tag: "gift", img: "https://i.ibb.co/TBSJPY1y/06e8afef8d9a920f428e997edca9e41f.jpg" },
   { id: "w21", title: "Login Frame 11", time: "10:35", category: "Abstract", premium: true, tag: "diamond", img: "https://i.ibb.co/kskPzj5r/c9130ea644806251ce4b1413af0865c9.jpg" },
   { id: "w22", title: "Login Frame 12", time: "04:00", category: "Nature", premium: false, tag: "gift", img: "https://i.ibb.co/yBpwd5CJ/1db3adb82e25ecf99a201f21d6e6f324.jpg" },
+
+  { id: "w23", title: "Wallpaper 23", time: "08:12", category: "Minimal", premium: true, tag: "diamond", img: "https://novawallpaper.github.io/depthx-app/pexels-steve-29986988.jpg" },
+  { id: "w24", title: "Wallpaper 24", time: "08:12", category: "Minimal", premium: true, tag: "diamond", img: "https://novawallpaper.github.io/depthx-app/pexels-steve-30018099.jpg" },
+  { id: "w25", title: "Wallpaper 25", time: "08:12", category: "Minimal", premium: true, tag: "diamond", img: "https://novawallpaper.github.io/depthx-app/pexels-steve-30843199.jpg" },
+  { id: "w26", title: "Wallpaper 26", time: "08:12", category: "Minimal", premium: true, tag: "diamond", img: "https://novawallpaper.github.io/depthx-app/pexels-steve-30936352.jpg" }
 ];
 
 const SAMPLES = WALLPAPERS.slice(0, 4);
