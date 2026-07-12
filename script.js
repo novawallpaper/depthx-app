@@ -5,7 +5,7 @@
    ========================================================= */
 
 const GOOGLE_CLIENT_ID = "452456583028-1l86bibq60ggkl3o1h5j88sed7v04eof.apps.googleusercontent.com";
-const RAZORPAY_KEY_ID = "rzp_test_TCD8788xLE6UZd";
+const RAZORPAY_KEY_ID = "rzp_live_TCZM7OsD80tNpH";
 
 /* ---------------- EmailJS config (welcome mail on sign-in) --------- */
 const EMAILJS_SERVICE_ID = "service_k4uj8nw";
