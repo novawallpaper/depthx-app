@@ -740,17 +740,16 @@ body {
   align-items: center;
   text-align: center;
 }
-
 .login-app-icon {
-  width: 78px;
-  height: 78px;
+  width: 90px;
+  height: 90px;
   border-radius: 22px;
   margin-bottom: 18px;
   background: linear-gradient(
     135deg,
-    #ffffff 0%,
+    #d58686 0%,
     #ffffff 50%,
-    #e2262a 50%,
+    #0b49e8 50%,
     #e2262a 100%
   );
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.55);
@@ -758,9 +757,9 @@ body {
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  font-size: 14px;
+  font-size: 42px;   /* 👈 DN bada ho jayega */
   color: #111;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
 }
 
 .login-app-name {
