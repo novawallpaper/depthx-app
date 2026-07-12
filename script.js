@@ -25,7 +25,7 @@ const WALLPAPERS = [
   { id: "w1", title: "Nebula Drift", time: "02:30", category: "Space", premium: true, tag: "fire", img: "https://i.ibb.co/Kz81yjgy/10a83c4fd7e6525b092666eae2a24828.jpg" },
   { id: "w2", title: "Orbit Line", time: "09:15", category: "Space", premium: false, tag: "gift", img: "https://i.ibb.co/TBgPsR0D/e41abb1adaa447b0ace2f00943fc2cf6.jpg" },
   { id: "w3", title: "Neon Grid", time: "23:47", category: "Cyber", premium: true, tag: "fire", img: "https://i.ibb.co/prM7ZcbB/f5e4b804c06fb5441d2392f4d6361714.jpg" },
-  { id: "w4", title: "Circuit City", time: "18:05", category: "Cyber", premium: false, tag: "gift", img: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600" },
+  { id: "w4", title: "Circuit City", time: "18:05", category: "Cyber", premium: false, tag: "gift", img: "img: "https://novawallpaper.github.io/depthx-app/1.jpg"" },
   { id: "w5", title: "Misty Pines", time: "06:20", category: "Nature", premium: false, tag: "gift", img: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600" },
   { id: "w6", title: "Golden Field", time: "17:40", category: "Nature", premium: true, tag: "diamond", img: "https://images.unsplash.com/photo-1500534623283-312aade485b7?w=600" },
   { id: "w7", title: "Arcade Glow", time: "21:10", category: "Gaming", premium: true, tag: "diamond", img: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600" },
