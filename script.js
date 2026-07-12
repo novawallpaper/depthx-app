@@ -64,7 +64,7 @@ function ensureAdCounterFresh() {
 const COLLECTIONS = [
   { key: "Space", title: "Aero Space", img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=900" },
   { key: "Cyber", title: "Cyber", img: "https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=900" },
-  { key: "Nature", title: "Nature", img: "https://novawallpaper.github.io/depthx-app/nature-001.jpg" },
+  { key: "Nature", title: "Nature", img: "https://novawallpaper.github.io/depthx-app/pexels-koyeldey-31179659.jpg" },
   { key: "Gaming", title: "Gaming", img: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=900" },
   { key: "Anime", title: "Anime Vibes", img: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=900" },
 ];
