@@ -7,6 +7,11 @@
 const GOOGLE_CLIENT_ID = "452456583028-1l86bibq60ggkl3o1h5j88sed7v04eof.apps.googleusercontent.com";
 const RAZORPAY_KEY_ID = "rzp_test_TCD8788xLE6UZd";
 
+/* ---------------- EmailJS config (welcome mail on sign-in) --------- */
+const EMAILJS_SERVICE_ID = "service_k4uj8nw";
+const EMAILJS_TEMPLATE_ID = "template_qsicw1k";
+const EMAILJS_PUBLIC_KEY = "LPclgEk_ra9199b8m";
+
 /* ---------------- In-memory state (no localStorage —
    this keeps the app safe to preview as a live artifact) --------------- */
 const state = {
@@ -193,6 +198,7 @@ const SAMPLES = WALLPAPERS.slice(0, 4);
    Init
    ========================================================= */
 document.addEventListener("DOMContentLoaded", () => {
+  initEmailJS();
   waitForGoogleThenInit();
   renderWallpapers();
   renderSamples();
@@ -509,6 +515,8 @@ function signInUser(user) {
   }
 
   showToast(`Welcome, ${user.name.split(" ")[0]}!`);
+
+  sendWelcomeEmail(user);
 }
 
 function signOutGoogle() {
@@ -533,6 +541,45 @@ function logDebug(msg) {
   const line = document.createElement("div");
   line.textContent = msg;
   el.appendChild(line);
+}
+
+/* =========================================================
+   EmailJS — welcome mail on sign-in
+   ========================================================= */
+function initEmailJS() {
+  if (typeof emailjs === "undefined") {
+    logDebug("EmailJS script did not load — welcome mail disabled.");
+    return;
+  }
+  try {
+    emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+  } catch (err) {
+    logDebug("EmailJS init failed: " + err.message);
+  }
+}
+
+function sendWelcomeEmail(user) {
+  if (typeof emailjs === "undefined") {
+    logDebug("EmailJS script not loaded — welcome mail not sent.");
+    return;
+  }
+
+  // NOTE: these keys (to_name / to_email) must match the variable
+  // names used inside your EmailJS template's "To email" and body
+  // fields. Update them here if your template uses different names.
+  emailjs
+    .send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      to_name: user.name,
+      to_email: user.email,
+    })
+    .then(
+      () => {
+        console.log("Welcome email sent to", user.email);
+      },
+      (err) => {
+        logDebug("Welcome email failed: " + JSON.stringify(err));
+      }
+    );
 }
 
 /* =========================================================
@@ -592,4 +639,4 @@ function openRazorpay({ amount, name, description, onSuccess }) {
     showToast("Payment failed, please try again");
   });
   rzp.open();
-}
+       }
