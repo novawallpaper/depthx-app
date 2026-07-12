@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>depthnova — Premium Wallpaper</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+
+    <!-- Google Identity Services (Sign in with Google) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <!-- EmailJS (sends the welcome email after sign-in) -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div class="app-container">
+      <!-- ========================= -->
+      <!-- LOGIN GATE -->
+      <!-- ========================= -->
+
+      <div id="login-gate" class="login-gate">
+        <div class="login-bg-grid">
+          <img src="https://i.ibb.co/Kz81yjgy/10a83c4fd7e6525b092666eae2a24828.jpg" alt="" />
+          <img src="https://i.ibb.co/TBgPsR0D/e41abb1adaa447b0ace2f00943fc2cf6.jpg" alt="" />
+          <img src="https://i.ibb.co/prM7ZcbB/f5e4b804c06fb5441d2392f4d6361714.jpg" alt="" />
+          <img src="https://i.ibb.co/RGVkzJxy/f5ae1610b81259691d8ac579db0ddb7c.jpg" alt="" />
+          <img src="https://i.ibb.co/JR3xrx4S/653a056fd4b86d41d868843de536ed9b.jpg" alt="" />
+          <img src="https://i.ibb.co/zVKnHdyL/3087a2ae0bc62298d176b86580bbc2b0.jpg" alt="" />
+          <img src="https://i.ibb.co/3m8B4SJR/479f69994761abea0968e875f84bb8d3.jpg" alt="" />
+          <img src="https://i.ibb.co/zWf2Nghf/c8a59f5672cb86f4b04da4adabb30111.jpg" alt="" />
+          <img src="https://i.ibb.co/z9j0y40/aa587ae4dd0e290dc436fd3e30e2fa5a.jpg" alt="" />
+          <img src="https://i.ibb.co/TBSJPY1y/06e8afef8d9a920f428e997edca9e41f.jpg" alt="" />
+          <img src="https://i.ibb.co/kskPzj5r/c9130ea644806251ce4b1413af0865c9.jpg" alt="" />
+          <img src="https://i.ibb.co/yBpwd5CJ/1db3adb82e25ecf99a201f21d6e6f324.jpg" alt="" />
+        </div>
+
+        <div class="login-gate-fade"></div>
+
+        <div class="login-content">
+          <div class="login-app-icon">DN</div>
+          <h1 class="login-app-name">depthnova</h1>
+          <p class="login-tagline">Enjoy stunning depth &amp; parallax effect wallpapers...</p>
+          <p class="login-by">By depth nova.</p>
+
+          <div id="google-signin-btn-gate" class="login-google-slot"></div>
+
+          <button id="google-fallback-btn" class="login-google-fallback" style="display: none" onclick="handleFallbackGoogleClick()">
+            <i class="fa-brands fa-google"></i>
+            Sign in with Google
+          </button>
+
+          <p id="signin-status" class="signin-status">Loading Google Sign-In…</p>
+
+          <p class="login-terms">
+            By continuing, you agree to our
+            <a href="terms.html" target="_blank">Terms of Service</a>
+            and
+            <a href="privacy.html" target="_blank">Privacy Policy</a>
+          </p>
+
+          <div id="debug-log" class="debug-log"></div>
+        </div>
+      </div>
+
+      <!-- ========================= -->
+      <!-- CATEGORIES SCREEN -->
+      <!-- ========================= -->
+
+      <div id="screen-categories" class="screen-content">
+        <div class="page-header">
+          <h1>Collection</h1>
+        </div>
+
+        <p class="category-subtitle"></p>
+
+        <div class="carousel-container" id="collection-carousel"></div>
+      </div>
+
+      <!-- ========================= -->
+      <!-- CATEGORY DETAIL SCREEN -->
+      <!-- ========================= -->
+
+      <div id="screen-category-detail" class="screen-content">
+        <div class="cat-detail-header">
+          <div class="back-btn" onclick="switchTab('categories', document.getElementById('nav-categories'))">
+            <i class="fa-solid fa-chevron-left"></i>
+          </div>
+          <h1 id="cat-detail-title">Category</h1>
+          <button class="cat-unlock-btn" onclick="openPremiumScreen()">
+            <i class="fa-solid fa-lock"></i> Unlock
+          </button>
+        </div>
+
+        <div class="cat-tabs">
+          <div class="cat-tab active" data-cat-filter="all" onclick="switchCatTab(this)">All</div>
+          <div class="cat-tab" data-cat-filter="premium" onclick="switchCatTab(this)">Premium</div>
+          <div class="cat-tab" data-cat-filter="free" onclick="switchCatTab(this)">Free</div>
+        </div>
+
+        <div class="wallpaper-grid" id="cat-detail-grid"></div>
+      </div>
+
+      <!-- ========================= -->
+      <!-- WALLPAPER EDITOR SCREEN -->
+      <!-- ========================= -->
+
+      <div id="screen-editor" class="screen-content editor-screen">
+        <div class="editor-header">
+          <div class="back-btn" onclick="closeEditorScreen()">
+            <i class="fa-solid fa-chevron-left"></i>
+          </div>
+          <h1 id="editor-title">Wallpaper</h1>
+          <div class="editor-fav-btn" id="editor-fav-btn" onclick="toggleFavoriteEditor()">
+            <i class="fa-solid fa-heart"></i>
+          </div>
+          <button class="editor-apply-btn" onclick="applyEditorWallpaper()">Apply</button>
+        </div>
+
+        <div class="editor-preview-wrap">
+          <div class="editor-phone-mock">
+            <div class="editor-preview-img" id="editor-preview-img"></div>
+            <div class="editor-preview-overlay">
+              <div class="editor-preview-date" id="editor-preview-date"></div>
+              <div class="editor-preview-clock" id="editor-preview-clock"></div>
+            </div>
+          </div>
+          <div class="editor-expand-btn"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></div>
+        </div>
+
+        <div class="editor-maintabs" id="editor-maintabs"></div>
+
+        <div class="editor-subtabs" id="editor-subtabs"></div>
+
+        <div class="editor-panel" id="editor-panel"></div>
+      </div>
+
+      <!-- ========================= -->
+      <!-- EXPLORE SCREEN -->
+      <!-- ========================= -->
+
+      <div id="screen-explore" class="screen-content active">
+        <div class="explore-header">
+          <h1 id="explore-title">All Wallpapers</h1>
+          <div class="search-box">
+            <input type="text" id="search-input" placeholder="Search Wallpapers..." />
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+        </div>
+
+        <div class="sub-categories-bar">
+          <div class="sub-cat-item active" data-filter="grid" onclick="switchSubCat(this)">
+            <i class="fa-solid fa-border-all"></i>
+            <span class="sub-cat-text">Grid</span>
+          </div>
+          <div class="sub-cat-item" data-filter="gift" onclick="switchSubCat(this)">
+            <i class="fa-solid fa-gift"></i>
+            <span class="sub-cat-text">Free</span>
+          </div>
+          <div class="sub-cat-item" data-filter="diamond" onclick="switchSubCat(this)">
+            <i class="fa-solid fa-gem"></i>
+            <span class="sub-cat-text">Premium</span>
+          </div>
+          <div class="sub-cat-item" data-filter="shuffle" onclick="switchSubCat(this)">
+            <i class="fa-solid fa-shuffle"></i>
+            <span class="sub-cat-text">Shuffle</span>
+          </div>
+          <div class="sub-cat-item" data-filter="star" onclick="switchSubCat(this)">
+            <i class="fa-solid fa-star"></i>
+            <span class="sub-cat-text">Favorites</span>
+          </div>
+          <div class="sub-cat-item" data-filter="fire" onclick="switchSubCat(this)">
+            <i class="fa-solid fa-fire"></i>
+            <span class="sub-cat-text">Trending</span>
+          </div>
+        </div>
+
+        <div class="wallpaper-grid" id="wallpaper-grid-container"></div>
+
+        <div class="fab-heart" onclick="filterByFavoritesQuick()">
+          <i class="fa-solid fa-heart"></i>
+        </div>
+      </div>
+
+      <!-- ========================= -->
+      <!-- REQUEST SCREEN -->
+      <!-- ========================= -->
+
+      <div id="screen-request" class="screen-content">
+        <div class="page-header">
+          <h1>Custom Wallpaper</h1>
+        </div>
+
+        <div class="custom-card">
+          <div class="custom-card-header">
+            <h3>Order Your Custom</h3>
+            <div class="sparkle-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+          </div>
+          <h2>Depth Wallpaper</h2>
+          <p>Upload your own image and receive a premium AI generated depth wallpaper in ultra HD quality.</p>
+          <div class="privacy-info">
+            <i class="fa-solid fa-lock"></i>
+            <span>Private • Visible only to you</span>
+          </div>
+          <div class="pricing-row">
+            <div class="price-tag">₹35 <span style="font-size: 12px; font-weight: 400; opacity: 0.8">/ Wallpaper</span></div>
+            <button class="order-btn" onclick="openOrderScreen()">Order Now</button>
+          </div>
+        </div>
+
+        <div class="section-title">Sample Wallpapers</div>
+        <div id="samples-grid" class="wallpaper-grid"></div>
+      </div>
+
+      <!-- ========================= -->
+      <!-- ORDER WALLPAPER SCREEN -->
+      <!-- ========================= -->
+
+      <div id="screen-order" class="screen-content">
+        <div class="page-header">
+          <div class="back-btn" onclick="switchTab('request', document.getElementById('nav-request'))">
+            <i class="fa-solid fa-chevron-left"></i>
+          </div>
+          <h1>Order Depth Wallpaper</h1>
+        </div>
+
+        <div class="order-info-card">
+          <h3>How it works</h3>
+          <div class="order-step">
+            <div class="order-step-num">1</div>
+            <div class="order-step-text"><h4>Submit &amp; pay</h4><p>Upload your high quality photo and pay via Razorpay.</p></div>
+          </div>
+          <div class="order-step">
+            <div class="order-step-num">2</div>
+            <div class="order-step-text"><h4>We review</h4><p>Our team checks if it's possible to create your wallpaper.</p></div>
+          </div>
+          <div class="order-step">
+            <div class="order-step-num">3</div>
+            <div class="order-step-text"><h4>Craft &amp; deliver</h4><p>We make your wallpaper and notify when it's ready to apply.</p></div>
+          </div>
+          <div class="order-step">
+            <div class="order-step-num">4</div>
+            <div class="order-step-text"><h4>Or full refund</h4><p>If we can't deliver it, you'll get a 100% refund within 48 hours.</p></div>
+          </div>
+        </div>
+
+        <div class="order-req-card">
+          <h3>Image Requirements</h3>
+          <p class="order-req-warning">If your image doesn't match these, your order may be rejected.</p>
+
+          <div class="order-req-item">
+            <div class="order-req-icon"><i class="fa-solid fa-image"></i></div>
+            <div class="order-req-text"><h4>Image Size / Ratio</h4><p>Please send a portrait image in 1:2 ratio for the best fit.</p></div>
+          </div>
+          <div class="order-req-item">
+            <div class="order-req-icon"><i class="fa-solid fa-icons"></i></div>
+            <div class="order-req-text"><h4>Image Quality</h4><p>Send a clear HD image. Avoid blurry, low-quality, or pixelated images.</p></div>
+          </div>
+          <div class="order-req-item">
+            <div class="order-req-icon"><i class="fa-solid fa-crosshairs"></i></div>
+            <div class="order-req-text"><h4>Subject Placement</h4><p>Keep the main subject/person in the center or slightly lower area so the clock can be placed properly. Avoid placing important details at the very top.</p></div>
+          </div>
+          <div class="order-req-item">
+            <div class="order-req-icon"><i class="fa-solid fa-clock"></i></div>
+            <div class="order-req-text"><h4>Space for Clock</h4><p>Please leave some clean space where the live clock and date can fit nicely.</p></div>
+          </div>
+          <div class="order-req-item">
+            <div class="order-req-icon"><i class="fa-solid fa-circle-info"></i></div>
+            <div class="order-req-text"><h4>Important Note</h4><p>We don't change or replace the background. The final result depends on the image you send — the better and cleaner your image is, the better your live clock wallpaper will look.</p></div>
+          </div>
+          <div class="order-req-item">
+            <div class="order-req-icon"><i class="fa-solid fa-lock"></i></div>
+            <div class="order-req-text"><h4>Privacy Note</h4><p>Your custom order will be private. It will only be visible to you and will not be shown or shared with any other user.</p></div>
+          </div>
+
+          <button class="order-samples-btn" onclick="showToast('Right vs Wrong samples coming soon')">
+            <i class="fa-solid fa-image"></i> See Right vs Wrong Samples
+          </button>
+        </div>
+
+        <div class="section-title">Upload Your Wallpaper</div>
+        <div class="order-upload-box" id="order-upload-box" onclick="triggerImageUpload()">
+          <div class="order-upload-icon"><i class="fa-solid fa-image"></i></div>
+          <h4>Tap to select image</h4>
+          <p>JPG, PNG, WebP • Max 10MB</p>
+        </div>
+        <input type="file" id="order-file-input" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="handleOrderImageSelect(event)" />
+
+        <div class="section-title">Message (Optional)</div>
+        <textarea class="order-message-box" id="order-message" placeholder="Any specific instructions for the wallpaper..."></textarea>
+
+        <button class="order-pay-btn" id="order-pay-btn" onclick="submitOrderPayment()">Pay ₹35.00 &amp; Send Request</button>
+
+        <p class="order-disclaimer">You'll pay now via Razorpay. Our team will review your request — if we can't deliver it, you'll get a full refund within 48 hours.</p>
+      </div>
+
+      <!-- ========================= -->
+      <!-- PREMIUM / SUBSCRIPTION SCREEN -->
+      <!-- ========================= -->
+
+      <div id="screen-premium" class="screen-content">
+        <div class="back-btn" style="margin-bottom: 10px;" onclick="closePremiumScreen()">
+          <i class="fa-solid fa-chevron-left"></i>
+        </div>
+
+        <div class="premium-hero"><i class="fa-solid fa-gem"></i></div>
+
+        <div class="premium-title-block">
+          <h1>Unlock Everything</h1>
+          <p>Get unlimited access to all wallpapers and exclusive premium features</p>
+        </div>
+
+        <div class="premium-features-row">
+          <div class="premium-feature-card">
+            <div class="premium-feature-icon"><i class="fa-solid fa-gem"></i><div class="lock-icon"><i class="fa-solid fa-lock"></i></div></div>
+            <p>Premium Wallpaper</p>
+          </div>
+          <div class="premium-feature-card">
+            <div class="premium-feature-icon"><i class="fa-solid fa-palette"></i><div class="lock-icon"><i class="fa-solid fa-lock"></i></div></div>
+            <p>Full Editing</p>
+          </div>
+          <div class="premium-feature-card">
+            <div class="premium-feature-icon"><i class="fa-solid fa-folder-open"></i><div class="lock-icon"><i class="fa-solid fa-lock"></i></div></div>
+            <p>All Collection</p>
+          </div>
+          <div class="premium-feature-card">
+            <div class="premium-feature-icon"><i class="fa-solid fa-gauge-high"></i><div class="lock-icon"><i class="fa-solid fa-lock"></i></div></div>
+            <p>Higher Limits</p>
+          </div>
+          <div class="premium-feature-card">
+            <div class="premium-feature-icon"><i class="fa-solid fa-headphones"></i><div class="lock-icon"><i class="fa-solid fa-lock"></i></div></div>
+            <p>Priority Support</p>
+          </div>
+        </div>
+
+        <div class="section-title">Available in these collections</div>
+        <div class="collection-option selected" id="collection-turbo">
+          <div class="collection-radio"><i class="fa-solid fa-check"></i></div>
+          <div class="collection-option-text">
+            <h4>Turbo Drive</h4>
+            <p>Pay once, unlock forever</p>
+          </div>
+          <div class="collection-price">₹80.00</div>
+          <button class="collection-explore-btn" onclick="event.stopPropagation(); openCategory('Turbo Drive')">Explore</button>
+        </div>
+
+        <div class="section-title">Choose a Premium plan</div>
+
+        <div class="plan-option selected" data-plan="lifetime" data-amount="79912" onclick="selectPlan(this)">
+          <div class="plan-badge">Best value</div>
+          <div class="plan-radio"><i class="fa-solid fa-check"></i></div>
+          <div class="plan-option-text">
+            <h4>Lifetime</h4>
+            <p>Pay once, own forever</p>
+          </div>
+          <div class="plan-price-block">
+            <div class="plan-strike">₹1,499.00</div>
+            <div class="plan-price">₹799.12</div>
+            <div class="plan-save">Save 46%</div>
+          </div>
+        </div>
+
+        <div class="plan-option" data-plan="yearly" data-amount="39900" onclick="selectPlan(this)">
+          <div class="plan-radio"></div>
+          <div class="plan-option-text">
+            <h4>Yearly</h4>
+            <p>Billed annually</p>
+          </div>
+          <div class="plan-price-block">
+            <div class="plan-price">₹399.00</div>
+          </div>
+        </div>
+
+        <div class="plan-option" data-plan="monthly" data-amount="14900" onclick="selectPlan(this)">
+          <div class="plan-radio"></div>
+          <div class="plan-option-text">
+            <h4>Monthly</h4>
+            <p>Billed monthly</p>
+          </div>
+          <div class="plan-price-block">
+            <div class="plan-price">₹149.00</div>
+          </div>
+        </div>
+
+        <button class="premium-continue-btn" onclick="startPremiumUpgrade()">Continue</button>
+      </div>
+
+      <!-- ========================= -->
+      <!-- SETTINGS SCREEN -->
+      <!-- ========================= -->
+
+      <div id="screen-settings" class="screen-content">
+        <div class="page-header"><h1>Settings</h1></div>
+
+        <div class="profile-card" id="profile-signed-in">
+          <div class="profile-left">
+            <div class="avatar" id="profile-avatar">U</div>
+            <div>
+              <div class="profile-name" id="profile-name-text">Not signed in</div>
+              <div class="profile-email" id="profile-email-text"></div>
+              <div class="verified-badge" id="verified-badge" style="display:none;">
+                <i class="fa-solid fa-circle-check"></i> Verified
+              </div>
+            </div>
+          </div>
+          <i class="fa-solid fa-right-from-bracket logout-btn" onclick="signOutGoogle()"></i>
+        </div>
+
+        <div class="free-banner">
+          <div>
+            <h2 id="tier-label">Free</h2>
+            <p>Tap to unlock everything</p>
+          </div>
+          <button class="upgrade-btn" onclick="openPremiumScreen()">Upgrade <i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+
+        <div class="features-scroll">
+          <div class="feature-item" onclick="openPremiumScreen()">
+            <div class="feature-icon-wrapper"><i class="fa-solid fa-gem"></i><div class="lock-icon"><i class="fa-solid fa-lock"></i></div></div>
+            <p>Premium Wallpaper</p>
+          </div>
+          <div class="feature-item" onclick="openPremiumScreen()">
+            <div class="feature-icon-wrapper"><i class="fa-solid fa-palette"></i><div class="lock-icon"><i class="fa-solid fa-lock"></i></div></div>
+            <p>Full Editing</p>
+          </div>
+          <div class="feature-item" onclick="openPremiumScreen()">
+            <div class="feature-icon-wrapper"><i class="fa-solid fa-folder-open"></i><div class="lock-icon"><i class="fa-solid fa-lock"></i></div></div>
+            <p>All Collection</p>
+          </div>
+          <div class="feature-item" onclick="openPremiumScreen()">
+            <div class="feature-icon-wrapper"><i class="fa-solid fa-gauge-high"></i><div class="lock-icon"><i class="fa-solid fa-lock"></i></div></div>
+            <p>Higher Limits</p>
+          </div>
+          <div class="feature-item" onclick="openPremiumScreen()">
+            <div class="feature-icon-wrapper"><i class="fa-solid fa-headphones"></i><div class="lock-icon"><i class="fa-solid fa-lock"></i></div></div>
+            <p>Priority Support</p>
+          </div>
+        </div>
+
+        <div class="no-ads-card">
+          <div class="no-ads-icon"><i class="fa-solid fa-ban"></i></div>
+          <div class="no-ads-info">
+            <h4>No Ads</h4>
+            <p>Enjoy a completely ad-free experience across the app</p>
+          </div>
+        </div>
+
+        <div class="limits-card">
+          <div class="limits-title-row">
+            <h3>Your Rate Limits</h3>
+            <span class="limits-tier">Tier: FREE</span>
+          </div>
+
+          <div class="limit-row">
+            <div class="limit-label"><span>Hourly</span><span id="hourly-label">0 / 30 used</span></div>
+            <div class="limit-bar"><div class="limit-progress" id="hourly-bar" style="width:0%"></div></div>
+          </div>
+          <div class="limit-row">
+            <div class="limit-label"><span>Daily</span><span id="daily-label">0 / 100 used</span></div>
+            <div class="limit-bar"><div class="limit-progress" id="daily-bar" style="width:0%"></div></div>
+          </div>
+
+          <div class="limits-btn-row">
+            <button class="refresh-btn" onclick="location.reload()">Refresh</button>
+            <button class="limits-upgrade-btn" onclick="openPremiumScreen()">Upgrade</button>
+          </div>
+          <p class="limits-hint">Upgrade to Premium for higher limits</p>
+        </div>
+
+        <div class="settings-section-label">PREFERENCES</div>
+
+        <div class="settings-row" onclick="toggleSetting(this, 'clock24')">
+          <div class="settings-row-icon"><i class="fa-solid fa-clock"></i></div>
+          <div class="settings-row-text">
+            <h4>Use 24-Hour Clock</h4>
+            <p id="clock-format-desc">12-hour format (2:30 PM)</p>
+          </div>
+          <div class="toggle-switch" id="toggle-clock24"></div>
+        </div>
+
+        <div class="settings-row" onclick="showToast('Opening guide…')">
+          <div class="settings-row-icon"><i class="fa-solid fa-gear"></i></div>
+          <div class="settings-row-text">
+            <h4>Hide System Clock</h4>
+            <p>Guide to hide system lockscreen clock</p>
+          </div>
+          <i class="fa-solid fa-chevron-right settings-row-arrow"></i>
+        </div>
+
+        <div class="settings-section-label">WALLPAPER</div>
+
+        <div class="wallpaper-settings-card">
+          <h3>Wallpaper Settings</h3>
+
+          <div class="ws-row">
+            <div class="ws-row-icon"><i class="fa-solid fa-mobile-screen"></i></div>
+            <div class="ws-row-text">
+              <h4>Show content on lockscreen</h4>
+              <p>If off, hides clock, date &amp; text on lockscreen only</p>
+            </div>
+            <div class="toggle-switch on" onclick="event.stopPropagation(); this.classList.toggle('on')"></div>
+          </div>
+
+          <div class="ws-row">
+            <div class="ws-row-icon"><i class="fa-solid fa-house"></i></div>
+            <div class="ws-row-text">
+              <h4>Show content on homescreen</h4>
+              <p>If off, hides clock, date &amp; text on homescreen only</p>
+            </div>
+            <div class="toggle-switch on" onclick="event.stopPropagation(); this.classList.toggle('on')"></div>
+          </div>
+
+          <div class="ws-row">
+            <div class="ws-row-icon"><i class="fa-solid fa-bolt"></i></div>
+            <div class="ws-row-text">
+              <h4>Show battery % while charging</h4>
+              <p>Replace clock or date with battery %</p>
+            </div>
+            <div class="toggle-switch" onclick="event.stopPropagation(); this.classList.toggle('on')"></div>
+          </div>
+        </div>
+
+        <div class="settings-section-label">SUPPORT</div>
+
+        <div class="settings-row" onclick="contactSupportEmail()">
+          <div class="settings-row-icon"><i class="fa-solid fa-envelope"></i></div>
+          <div class="settings-row-text">
+            <h4>Email Support</h4>
+            <p>depthnovacustomersupport@gmail.com</p>
+          </div>
+          <i class="fa-solid fa-chevron-right settings-row-arrow"></i>
+        </div>
+
+        <div class="settings-row" onclick="contactSupportTelegram()">
+          <div class="settings-row-icon"><i class="fa-brands fa-telegram"></i></div>
+          <div class="settings-row-text">
+            <h4>Telegram</h4>
+            <p>t.me/depthnova</p>
+          </div>
+          <i class="fa-solid fa-chevron-right settings-row-arrow"></i>
+        </div>
+      </div>
+
+      <!-- ========================= -->
+      <!-- Bottom Navigation -->
+      <!-- ========================= -->
+
+      <nav class="bottom-nav">
+        <div class="nav-item" id="nav-categories" onclick="switchTab('categories', this)">
+          <div class="nav-icon-wrapper"><i class="fa-solid fa-layer-group"></i></div>
+          <span>Categories</span>
+        </div>
+        <div class="nav-item active" id="nav-explore" onclick="switchTab('explore', this)">
+          <div class="nav-icon-wrapper"><i class="fa-solid fa-compass"></i></div>
+          <span>Explore</span>
+        </div>
+        <div class="nav-item" id="nav-request" onclick="switchTab('request', this)">
+          <div class="nav-icon-wrapper"><i class="fa-solid fa-circle-plus"></i></div>
+          <span>Request</span>
+        </div>
+        <div class="nav-item" id="nav-settings" onclick="switchTab('settings', this)">
+          <div class="nav-icon-wrapper"><i class="fa-solid fa-gear"></i></div>
+          <span>Settings</span>
+        </div>
+      </nav>
+
+      <!-- Wallpaper Preview Modal -->
+      <div id="wallpaper-modal" class="wallpaper-modal">
+        <div id="modal-preview-bg" class="modal-preview-bg"></div>
+        <h2 id="modal-wallpaper-title"></h2>
+        <div class="modal-fav-btn" id="modal-fav-btn" onclick="toggleFavoriteModal()"><i class="fa-solid fa-heart"></i></div>
+        <button id="modal-download-action">Download</button>
+        <button id="modal-set-action">Set Wallpaper</button>
+      </div>
+
+      <!-- Unlock choice sheet (Buy Premium / Watch ad) -->
+      <div id="unlock-sheet-overlay" class="unlock-sheet-overlay">
+        <div class="unlock-sheet">
+          <div class="unlock-sheet-close" onclick="closeUnlockSheet()"><i class="fa-solid fa-xmark"></i></div>
+          <div class="unlock-sheet-icon"><i class="fa-solid fa-gem"></i></div>
+          <h2>Premium Wallpaper</h2>
+          <p>Choose how to unlock this wallpaper:</p>
+
+          <button class="unlock-option" onclick="chooseUnlockPremium()">
+            <div class="unlock-option-icon"><i class="fa-solid fa-gem"></i></div>
+            <div class="unlock-option-text">
+              <h4>Buy Premium</h4>
+              <p>Subscribe or buy this collection — see all options</p>
+            </div>
+          </button>
+
+          <button class="unlock-option" id="unlock-ad-btn" onclick="chooseUnlockAd()">
+            <div class="unlock-option-icon ad"><i class="fa-solid fa-play"></i></div>
+            <div class="unlock-option-text">
+              <h4>Watch ad to unlock free</h4>
+              <p id="unlock-ad-desc">Free — used 0 / 1 today</p>
+            </div>
+          </button>
+
+          <button class="unlock-maybe-later" onclick="closeUnlockSheet()">Maybe later</button>
+        </div>
+      </div>
+
+      <!-- Simulated rewarded-ad overlay -->
+      <div id="ad-overlay" class="ad-overlay">
+        <div class="ad-overlay-icon"></div>
+        <h3>Playing rewarded ad…</h3>
+        <p>Your wallpaper unlocks when the ad finishes</p>
+        <div class="ad-overlay-timer" id="ad-overlay-timer">5</div>
+      </div>
+
+      <!-- Toast -->
+      <div id="app-toast" class="toast"></div>
+    </div>
+
+    <!-- Razorpay Checkout SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <script src="script.js"></script>
+  </body>
+</html>
