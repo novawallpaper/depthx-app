@@ -835,4 +835,10 @@ function openRazorpay({
 
   rzp.open();
 
-}
+}document.addEventListener("DOMContentLoaded", () => {
+  waitForGoogleThenInit();
+  renderWallpapers();
+  renderSamples();
+  wireSearch();
+  wireModalClose();
+});
