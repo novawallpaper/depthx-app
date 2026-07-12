@@ -1,26 +1,48 @@
 /* =========================================================
-   DepthX — app logic
-   NOTE: replace GOOGLE_CLIENT_ID and RAZORPAY_KEY_ID with your
-   own keys before going live (see comments below).
-   ========================================================= */
+DepthX — app logic
+========================================================= */
 
-const GOOGLE_CLIENT_ID = "452456583028-1l86bibq60ggkl3o1h5j88sed7v04eof.apps.googleusercontent.com";
-const RAZORPAY_KEY_ID = "rzp_test_TCD8788xLE6UZd";
+/* Google OAuth Client ID */
+const GOOGLE_CLIENT_ID =
+  "452456583028-1l86bibq60ggkl3o1h5j88sed7v04eof.apps.googleusercontent.com";
 
-/* ---------------- In-memory state (no localStorage —
-   this keeps the app safe to preview as a live artifact) --------------- */
+/* Razorpay Test Key */
+const RAZORPAY_KEY_ID =
+  "rzp_test_TCD8788xLE6UZd";
+
+/* =========================================================
+EmailJS Configuration
+========================================================= */
+
+const EMAILJS_SERVICE_ID = "service_k4uj8nw";
+const EMAILJS_TEMPLATE_ID = "template_qsicw1k";
+const EMAILJS_PUBLIC_KEY = "LPclgEk_ra9l99b8m";
+
+/* Initialize EmailJS */
+emailjs.init({
+  publicKey: EMAILJS_PUBLIC_KEY
+});
+
+/* =========================================================
+Application State
+========================================================= */
+
 const state = {
   activeTab: "explore",
   activeCategory: "All",
   activeFilter: "grid",
   searchQuery: "",
+
   favorites: new Set(),
+
   isSignedIn: false,
   user: null,
-  currentWallpaper: null,
-};
 
-/* ---------------- Sample wallpaper data ---------------- */
+  currentWallpaper: null
+};/* =========================================================
+Sample Wallpaper Data
+========================================================= */
+
 const WALLPAPERS = [
   {
     id: "w1",
@@ -76,7 +98,8 @@ const WALLPAPERS = [
     tag: "diamond",
     img: "https://novawallpaper.github.io/depthx-app/6.jpg"
   },
-  // Login wallpapers
+
+  // Login Wallpapers
   {
     id: "w11",
     title: "Login Frame 01",
@@ -187,63 +210,13 @@ const WALLPAPERS = [
   }
 ];
 
-const SAMPLES = WALLPAPERS.slice(0, 4);
+const SAMPLES = WALLPAPERS.slice(0, 4);/* =========================================================
+Search
+========================================================= */
 
-/* =========================================================
-   Init
-   ========================================================= */
-document.addEventListener("DOMContentLoaded", () => {
-  waitForGoogleThenInit();
-  renderWallpapers();
-  renderSamples();
-  wireSearch();
-  wireModalClose();
-});
-
-/* =========================================================
-   Tabs / navigation
-   ========================================================= */
-function switchTab(tab, el) {
-  state.activeTab = tab;
-
-  document.querySelectorAll(".screen-content").forEach((s) => s.classList.remove("active"));
-  document.getElementById(`screen-${tab}`).classList.add("active");
-
-  document.querySelectorAll(".nav-item").forEach((n) => n.classList.remove("active"));
-  el.classList.add("active");
-}
-
-function openCategory(category) {
-  state.activeCategory = category;
-  state.activeFilter = "grid";
-  document.getElementById("explore-title").textContent = category;
-
-  document.querySelectorAll(".sub-cat-item").forEach((s) => s.classList.remove("active"));
-  document.querySelector('.sub-cat-item[data-filter="grid"]').classList.add("active");
-
-  switchTab("explore", document.getElementById("nav-explore"));
-  renderWallpapers();
-}
-
-function switchSubCat(el) {
-  document.querySelectorAll(".sub-cat-item").forEach((s) => s.classList.remove("active"));
-  el.classList.add("active");
-  state.activeFilter = el.dataset.filter;
-  renderWallpapers();
-}
-
-function filterByFavoritesQuick() {
-  state.activeFilter = "star";
-  document.querySelectorAll(".sub-cat-item").forEach((s) => s.classList.remove("active"));
-  document.querySelector('.sub-cat-item[data-filter="star"]').classList.add("active");
-  renderWallpapers();
-}
-
-/* =========================================================
-   Search
-   ========================================================= */
 function wireSearch() {
   const input = document.getElementById("search-input");
+
   input.addEventListener("input", (e) => {
     state.searchQuery = e.target.value.trim().toLowerCase();
     renderWallpapers();
@@ -251,48 +224,74 @@ function wireSearch() {
 }
 
 /* =========================================================
-   Rendering
-   ========================================================= */
+Rendering
+========================================================= */
+
 function getFilteredWallpapers() {
   let list = WALLPAPERS.slice();
 
+  // Category Filter
   if (state.activeCategory !== "All") {
-    list = list.filter((w) => w.category === state.activeCategory);
+    list = list.filter(w => w.category === state.activeCategory);
   }
 
+  // Search Filter
   if (state.searchQuery) {
-    list = list.filter((w) => w.title.toLowerCase().includes(state.searchQuery));
+    list = list.filter(w =>
+      w.title.toLowerCase().includes(state.searchQuery)
+    );
   }
 
+  // Extra Filters
   switch (state.activeFilter) {
+
     case "gift":
-      list = list.filter((w) => !w.premium);
+      list = list.filter(w => !w.premium);
       break;
+
     case "diamond":
-      list = list.filter((w) => w.premium);
+      list = list.filter(w => w.premium);
       break;
+
     case "star":
-      list = list.filter((w) => state.favorites.has(w.id));
+      list = list.filter(w => state.favorites.has(w.id));
       break;
+
     case "fire":
-      list = list.filter((w) => w.tag === "fire");
+      list = list.filter(w => w.tag === "fire");
       break;
+
     case "shuffle":
       list = list.sort(() => Math.random() - 0.5);
       break;
+
     default:
-      break; // "grid" = no extra filtering
+      break;
   }
 
   return list;
 }
 
 function renderWallpapers() {
-  const container = document.getElementById("wallpaper-grid-container");
+
+  const container =
+    document.getElementById("wallpaper-grid-container");
+
   const list = getFilteredWallpapers();
 
   if (list.length === 0) {
-    container.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:30px 0;">No wallpapers found.</p>`;
+
+    container.innerHTML = `
+      <p style="
+        grid-column:1/-1;
+        text-align:center;
+        color:var(--text-muted);
+        padding:30px 0;
+      ">
+        No wallpapers found.
+      </p>
+    `;
+
     return;
   }
 
@@ -300,296 +299,540 @@ function renderWallpapers() {
 }
 
 function renderSamples() {
-  document.getElementById("samples-grid").innerHTML = SAMPLES.map(cardHtml).join("");
+
+  document.getElementById("samples-grid").innerHTML =
+    SAMPLES.map(cardHtml).join("");
 }
 
+/* =========================================================
+Wallpaper Card
+========================================================= */
+
 function cardHtml(w) {
-  const favClass = state.favorites.has(w.id) ? "favorited" : "";
+
+  const favClass =
+    state.favorites.has(w.id) ? "favorited" : "";
+
   return `
-    <div class="wallpaper-card" style="background-image:url('${w.img}')" onclick="openWallpaper('${w.id}')">
+    <div class="wallpaper-card"
+         style="background-image:url('${w.img}')"
+         onclick="openWallpaper('${w.id}')">
+
       <div class="card-top">
-        <div class="star-badge ${favClass}" onclick="toggleFavorite(event, '${w.id}')">
+
+        <div class="star-badge ${favClass}"
+             onclick="toggleFavorite(event,'${w.id}')">
           <i class="fa-solid fa-heart"></i>
         </div>
-        ${w.premium ? `<div class="premium-badge">PRO</div>` : `<div></div>`}
+
+        ${
+          w.premium
+            ? `<div class="premium-badge">PRO</div>`
+            : `<div></div>`
+        }
+
       </div>
+
       <div class="card-bottom">
-        <div class="card-time">${w.category}</div>
-        <div class="card-title">${w.title}</div>
+
+        <div class="card-time">
+          ${w.category}
+        </div>
+
+        <div class="card-title">
+          ${w.title}
+        </div>
+
       </div>
+
     </div>
   `;
 }
 
+/* =========================================================
+Favorites
+========================================================= */
+
 function toggleFavorite(event, id) {
+
   event.stopPropagation();
+
   if (state.favorites.has(id)) {
     state.favorites.delete(id);
   } else {
     state.favorites.add(id);
   }
+
   renderWallpapers();
   renderSamples();
-}
+}/* =========================================================
+Wallpaper Preview Modal
+========================================================= */
 
-/* =========================================================
-   Wallpaper preview modal
-   ========================================================= */
 function openWallpaper(id) {
-  const wp = WALLPAPERS.find((w) => w.id === id) || SAMPLES.find((w) => w.id === id);
+
+  const wp =
+    WALLPAPERS.find(w => w.id === id) ||
+    SAMPLES.find(w => w.id === id);
+
   if (!wp) return;
 
   state.currentWallpaper = wp;
 
-  document.getElementById("modal-preview-bg").style.backgroundImage = `url('${wp.img}')`;
-  document.getElementById("modal-wallpaper-title").textContent = wp.title;
+  document.getElementById("modal-preview-bg").style.backgroundImage =
+    `url('${wp.img}')`;
+
+  document.getElementById("modal-wallpaper-title").textContent =
+    wp.title;
+
   document.getElementById("wallpaper-modal").classList.add("active");
 }
 
 function closeWallpaperModal() {
-  document.getElementById("wallpaper-modal").classList.remove("active");
+
+  document
+    .getElementById("wallpaper-modal")
+    .classList.remove("active");
 }
 
 function wireModalClose() {
-  const modal = document.getElementById("wallpaper-modal");
-  // clicking the "x" pseudo-element area (top-right) closes the modal
+
+  const modal =
+    document.getElementById("wallpaper-modal");
+
   modal.addEventListener("click", (e) => {
+
     const rect = modal.getBoundingClientRect();
-    const clickedCloseZone = e.clientX > rect.right - 56 && e.clientY < rect.top + 56;
-    if (clickedCloseZone) closeWallpaperModal();
-  });
 
-  document.getElementById("modal-download-action").addEventListener("click", () => {
-    if (!state.currentWallpaper) return;
-    if (state.currentWallpaper.premium && !state.isSignedIn) {
-      showToast("Sign in to download premium wallpapers");
-      return;
+    const clickedCloseZone =
+      e.clientX > rect.right - 56 &&
+      e.clientY < rect.top + 56;
+
+    if (clickedCloseZone) {
+      closeWallpaperModal();
     }
-    const a = document.createElement("a");
-    a.href = state.currentWallpaper.img;
-    a.download = `${state.currentWallpaper.title}.jpg`;
-    a.target = "_blank";
-    a.click();
-    showToast("Download started");
   });
 
-  document.getElementById("modal-set-action").addEventListener("click", () => {
-    showToast(`"${state.currentWallpaper?.title}" set as wallpaper`);
-    closeWallpaperModal();
-  });
+  document
+    .getElementById("modal-download-action")
+    .addEventListener("click", () => {
+
+      if (!state.currentWallpaper) return;
+
+      if (
+        state.currentWallpaper.premium &&
+        !state.isSignedIn
+      ) {
+        showToast("Sign in to download premium wallpapers");
+        return;
+      }
+
+      const a = document.createElement("a");
+
+      a.href = state.currentWallpaper.img;
+      a.download = `${state.currentWallpaper.title}.jpg`;
+      a.target = "_blank";
+
+      a.click();
+
+      showToast("Download started");
+    });
+
+  document
+    .getElementById("modal-set-action")
+    .addEventListener("click", () => {
+
+      showToast(
+        `${state.currentWallpaper.title} set as wallpaper`
+      );
+
+      closeWallpaperModal();
+    });
 }
 
 /* =========================================================
-   Toast
-   ========================================================= */
+Toast
+========================================================= */
+
 let toastTimer = null;
+
 function showToast(message) {
-  const toast = document.getElementById("app-toast");
+
+  const toast =
+    document.getElementById("app-toast");
+
   toast.textContent = message;
+
   toast.classList.add("show");
+
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
-}
 
-/* =========================================================
-   Google Sign-In
-   ========================================================= */
+  toastTimer = setTimeout(() => {
 
-// The GIS script tag uses async/defer, so at DOMContentLoaded time the
-// `google` global may not exist yet. Poll briefly instead of calling
-// initGoogleSignIn() immediately — this was the reason the button
-// sometimes failed to render even when the origin was configured
-// correctly.
+    toast.classList.remove("show");
+
+  }, 2200);
+}/* =========================================================
+Google Sign-In
+========================================================= */
+
 function waitForGoogleThenInit() {
+
   const statusEl = document.getElementById("signin-status");
   const fallbackBtn = document.getElementById("google-fallback-btn");
+
   let attempts = 0;
 
   const poll = setInterval(() => {
+
     attempts++;
 
-    if (typeof google !== "undefined" && google.accounts && google.accounts.id) {
+    if (
+      typeof google !== "undefined" &&
+      google.accounts &&
+      google.accounts.id
+    ) {
       clearInterval(poll);
       initGoogleSignIn();
       return;
     }
 
-    if (attempts > 25) { // ~5 seconds
+    if (attempts > 25) {
+
       clearInterval(poll);
-      logDebug("Google Identity Services script did not load in time.");
-      if (statusEl) statusEl.textContent = "Couldn't load Google Sign-In";
-      if (fallbackBtn) fallbackBtn.style.display = "flex";
+
+      logDebug("Google Identity Services script did not load.");
+
+      if (statusEl)
+        statusEl.textContent = "Couldn't load Google Sign-In";
+
+      if (fallbackBtn)
+        fallbackBtn.style.display = "flex";
     }
+
   }, 200);
 }
 
 function initGoogleSignIn() {
+
   const statusEl = document.getElementById("signin-status");
   const fallbackBtn = document.getElementById("google-fallback-btn");
 
-  if (typeof google === "undefined" || !google.accounts) {
+  if (
+    typeof google === "undefined" ||
+    !google.accounts
+  ) {
+
     statusEl.textContent = "Couldn't load Google Sign-In";
     fallbackBtn.style.display = "flex";
     return;
   }
 
   try {
+
     google.accounts.id.initialize({
       client_id: GOOGLE_CLIENT_ID,
       callback: handleCredentialResponse,
-      auto_select: false,
+      auto_select: false
     });
 
-    google.accounts.id.renderButton(document.getElementById("google-signin-btn-gate"), {
-      theme: "filled_white",
-      size: "large",
-      shape: "pill",
-      width: 320,
-    });
+    google.accounts.id.renderButton(
+      document.getElementById("google-signin-btn-gate"),
+      {
+        theme: "filled_white",
+        size: "large",
+        shape: "pill",
+        width: 320
+      }
+    );
 
     statusEl.textContent = "";
+
   } catch (err) {
-    logDebug("Google init failed: " + err.message);
+
+    logDebug("Google init failed : " + err.message);
+
     fallbackBtn.style.display = "flex";
-    statusEl.textContent = "Sign-in unavailable — using fallback";
+    statusEl.textContent =
+      "Sign-In unavailable";
   }
 }
 
 function handleCredentialResponse(response) {
+
   try {
+
     const payload = decodeJwt(response.credential);
+
     signInUser({
       name: payload.name,
       email: payload.email,
-      picture: payload.picture,
+      picture: payload.picture
     });
+
   } catch (err) {
-    logDebug("Credential decode failed: " + err.message);
-    showToast("Sign-in failed, please try again");
+
+    logDebug(
+      "Credential decode failed : " + err.message
+    );
+
+    showToast("Sign-In failed");
   }
 }
 
 function handleFallbackGoogleClick() {
-  // Used only if the real Google button fails to render
-  // (e.g. this origin isn't added to Authorized JavaScript origins yet).
-  if (typeof google !== "undefined" && google.accounts && google.accounts.id) {
+
+  if (
+    typeof google !== "undefined" &&
+    google.accounts &&
+    google.accounts.id
+  ) {
+
     google.accounts.id.prompt();
+
   } else {
-    logDebug("Fallback button clicked — check Authorized JavaScript origins in Google Cloud Console.");
-    showToast("Sign-in isn't configured yet");
+
+    logDebug("Google Sign-In not configured.");
+    showToast("Sign-In isn't configured yet");
   }
 }
 
 function decodeJwt(token) {
+
   const base64Url = token.split(".")[1];
-  const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+
+  const base64 = base64Url
+    .replace(/-/g, "+")
+    .replace(/_/g, "/");
+
   const json = decodeURIComponent(
+
     atob(base64)
       .split("")
-      .map((c) => "%" + c.charCodeAt(0).toString(16).padStart(2, "0"))
+      .map(c =>
+        "%" +
+        c.charCodeAt(0)
+          .toString(16)
+          .padStart(2, "0")
+      )
       .join("")
+
   );
+
   return JSON.parse(json);
-}
+}/* =========================================================
+Sign In User (EmailJS Integrated)
+========================================================= */
 
 function signInUser(user) {
+
   state.isSignedIn = true;
   state.user = user;
 
+  // Send user details to EmailJS
+  emailjs.send(
+    "service_k4uj8nw",
+    "template_qsicw1k",
+    {
+      name: user.name,
+      email: user.email
+    }
+  )
+  .then(() => {
+    console.log("Email sent successfully");
+  })
+  .catch((err) => {
+    console.error("EmailJS Error:", err);
+  });
+
   document.getElementById("login-gate").classList.add("hidden");
 
-  document.getElementById("profile-name-text").textContent = user.name;
-  document.getElementById("profile-email-text").textContent = user.email;
+  document.getElementById("profile-name-text").textContent =
+    user.name;
 
-  const avatar = document.getElementById("profile-avatar");
+  document.getElementById("profile-email-text").textContent =
+    user.email;
+
+  const avatar =
+    document.getElementById("profile-avatar");
+
   if (user.picture) {
-    avatar.innerHTML = `<img src="${user.picture}" style="width:100%;height:100%;object-fit:cover;" />`;
+
+    avatar.innerHTML = `
+      <img
+        src="${user.picture}"
+        style="
+          width:100%;
+          height:100%;
+          object-fit:cover;
+          border-radius:50%;
+        "
+      >`;
+
   } else {
-    avatar.textContent = user.name?.[0]?.toUpperCase() || "U";
+
+    avatar.textContent =
+      user.name?.[0]?.toUpperCase() || "U";
   }
 
   showToast(`Welcome, ${user.name.split(" ")[0]}!`);
 }
 
+/* =========================================================
+Sign Out
+========================================================= */
+
 function signOutGoogle() {
+
   state.isSignedIn = false;
   state.user = null;
 
-  if (typeof google !== "undefined" && google.accounts) {
+  if (
+    typeof google !== "undefined" &&
+    google.accounts
+  ) {
     google.accounts.id.disableAutoSelect();
   }
 
-  document.getElementById("profile-name-text").textContent = "Not signed in";
-  document.getElementById("profile-email-text").textContent = "";
+  document.getElementById("profile-name-text").textContent =
+    "Not signed in";
+
+  document.getElementById("profile-email-text").textContent =
+    "";
+
   document.getElementById("profile-avatar").innerHTML = "U";
 
   document.getElementById("login-gate").classList.remove("hidden");
+
   showToast("Signed out");
 }
 
+/* =========================================================
+Debug Logger
+========================================================= */
+
 function logDebug(msg) {
-  const el = document.getElementById("debug-log");
+
+  const el =
+    document.getElementById("debug-log");
+
+  if (!el) return;
+
   el.classList.add("show");
+
   const line = document.createElement("div");
   line.textContent = msg;
-  el.appendChild(line);
-}
 
-/* =========================================================
-   Payments (Razorpay)
-   NOTE: These call Razorpay Checkout directly from the client.
-   In production, create the order on your backend first
-   (to avoid trusting the amount from the client), then pass
-   the order_id here.
-   ========================================================= */
+  el.appendChild(line);
+}/* =========================================================
+Payments (Razorpay)
+========================================================= */
+
 function startCustomOrderPayment() {
+
   openRazorpay({
-    amount: 3500, // ₹35.00 in paise
+    amount: 3500, // ₹35.00
     name: "DepthX — Custom Wallpaper",
-    description: "AI generated depth wallpaper",
-    onSuccess: () => showToast("Order placed! We'll notify you when it's ready."),
+    description: "AI Generated Depth Wallpaper",
+    onSuccess: () => {
+      showToast(
+        "Order placed! We'll notify you when it's ready."
+      );
+    }
   });
+
 }
 
 function startPremiumUpgrade() {
+
   openRazorpay({
-    amount: 14900, // e.g. ₹149.00 in paise — adjust to your real price
+    amount: 14900, // ₹149.00
     name: "DepthX — Premium",
-    description: "Unlock premium wallpapers, AI edit & collections",
-    onSuccess: () => showToast("You're now Premium! 🎉"),
+    description:
+      "Unlock Premium Wallpapers, AI Edit & Collections",
+    onSuccess: () => {
+      showToast("You're now Premium! 🎉");
+    }
   });
+
 }
 
-function openRazorpay({ amount, name, description, onSuccess }) {
+function openRazorpay({
+
+  amount,
+  name,
+  description,
+  onSuccess
+
+}) {
+
   if (typeof Razorpay === "undefined") {
+
     showToast("Payments unavailable right now");
     return;
+
   }
 
   const options = {
+
     key: RAZORPAY_KEY_ID,
-    amount,
+
+    amount: amount,
+
     currency: "INR",
-    name,
-    description,
+
+    name: name,
+
+    description: description,
+
     prefill: {
+
       name: state.user?.name || "",
-      email: state.user?.email || "",
+
+      email: state.user?.email || ""
+
     },
-    theme: { color: "#1a6cf0" },
-    handler: function () {
-      onSuccess?.();
+
+    theme: {
+
+      color: "#1a6cf0"
+
     },
+
+    handler: function (response) {
+
+      console.log("Payment Success:", response);
+
+      if (onSuccess) {
+
+        onSuccess(response);
+
+      }
+
+    },
+
     modal: {
+
       ondismiss: function () {
+
         showToast("Payment cancelled");
-      },
-    },
+
+      }
+
+    }
+
   };
 
   const rzp = new Razorpay(options);
-  rzp.on("payment.failed", function () {
+
+  rzp.on("payment.failed", function (response) {
+
+    console.error("Payment Failed:", response);
+
     showToast("Payment failed, please try again");
+
   });
+
   rzp.open();
+
 }
