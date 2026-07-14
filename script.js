@@ -67,7 +67,7 @@ const COLLECTIONS = [
   { key: "Nature", title: "Nature", img: "https://novawallpaper.github.io/depthx-app/pexels-steve-30018099.jpg" },
   { key: "Gaming", title: "Gaming", img: "https://novawallpaper.github.io/depthx-app/pexels-steve-30843199.jpg" },
   { key: "Anime", title: "Anime Vibes", img: "https://novawallpaper.github.io/depthx-app/pexels-steve-30936352.jpg" },
-  {key: "Heros", titel: "Heros ", img,}
+  {key: "Heros", titel: "Heros ", img: "https:novawallpaper.github.io/depthx-app/pexels-steve-30936352.jpg" },
 ];
 
 /* ---------------- Sample wallpaper data ---------------- */
