@@ -67,9 +67,8 @@ const COLLECTIONS = [
   { key: "Nature", title: "Nature", img: "https://novawallpaper.github.io/depthx-app/pexels-steve-30018099.jpg" },
   { key: "Gaming", title: "Gaming", img: "https://novawallpaper.github.io/depthx-app/pexels-steve-30843199.jpg" },
   { key: "Anime", title: "Anime Vibes", img: "https://novawallpaper.github.io/depthx-app/pexels-steve-30936352.jpg" },
-   
+  { key: "Superheroes", title: "Superheroes", img: "https://novawallpaper.github.io/depthx-app/pexels-steve-30843199.jpg" },
 ];
-
 /* ---------------- Sample wallpaper data ---------------- */
 const WALLPAPERS = [
   { id: "w1", title: "Wallpaper 1", time: "02:30", category: "Space", premium: true, tag: "fire", img: "https://novawallpaper.github.io/depthx-app/pexels-koyeldey-31179659.jpg" },
